@@ -1,11 +1,48 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Logo from "./logo";
 import Dropdown from "@/components/dropdown";
 import MobileMenu from "./mobile-menu";
+import Modal from "@/components/Modal";
+import WalletConnection from "@/components/WalletConnection";
+
+declare global {
+  interface Window {
+    keplr: any;
+    leap: any;
+    getOfflineSigner: any;
+  }
+}
 
 export default function Header() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [connectedAddress, setConnectedAddress] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Load the connected address from localStorage when the component mounts
+    const storedKeplrAddress = localStorage.getItem("keplrAddress");
+    const storedLeapAddress = localStorage.getItem("leapAddress");
+    if (storedKeplrAddress) {
+      setConnectedAddress(storedKeplrAddress);
+    } else if (storedLeapAddress) {
+      setConnectedAddress(storedLeapAddress);
+    }
+  }, []);
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
+  const handleWalletConnect = (address: string) => {
+    setConnectedAddress(address);
+    closeModal();
+  };
+
+  const truncateAddress = (address: string) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
   return (
     <header className="z-30 mt-2 w-full md:mt-5">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -89,7 +126,7 @@ export default function Header() {
                 href="/signin"
                 className="btn-sm relative bg-gradient-to-b from-gray-800 to-gray-800/60 bg-[length:100%_100%] bg-[bottom] py-[5px] text-gray-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,theme(colors.gray.800),theme(colors.gray.700),theme(colors.gray.800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:bg-[length:100%_150%]"
               >
-                Connect
+                Sign In
               </Link>
             </li>
             <li>
@@ -100,11 +137,24 @@ export default function Header() {
                 Register
               </Link>
             </li>
+            <li>
+              <button
+                onClick={openModal}
+                className="btn-sm relative bg-gradient-to-b from-gray-800 to-gray-800/60 bg-[length:100%_100%] bg-[bottom] py-[5px] text-gray-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,theme(colors.gray.800),theme(colors.gray.700),theme(colors.gray.800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:bg-[length:100%_150%]"
+              >
+                Wallet
+              </button>
+            </li>
           </ul>
 
           <MobileMenu />
         </div>
       </div>
+
+      {/* Modal */}
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        <WalletConnection onConnect={handleWalletConnect} />
+      </Modal>
     </header>
   );
 }
