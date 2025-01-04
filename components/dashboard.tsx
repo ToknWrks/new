@@ -15,7 +15,7 @@ const Dashboard = ({ connectedAddress }: DashboardProps) => {
 
   return (
     <section>
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-3">
         <div className="pb-12 md:pb-20">
           {/* Section header */}
           <div className="mx-auto max-w-3xl pb-12 text-center md:pb-20">
@@ -74,8 +74,7 @@ const Dashboard = ({ connectedAddress }: DashboardProps) => {
                     </span>
                   </div>
                   <p className="text-indigo-200/65">
-                    Streamline the product development flow with a content
-                    platform that's aligned across specs and insights.
+                   
                   </p>
                 </div>
               </div>
