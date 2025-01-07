@@ -1,11 +1,11 @@
 "use client"
   
 
-  import Timeline from "@/components/dashboard-timeline";
+  import DashboardTimeline from "@/components/dashboard-timeline";
   import Dashboard from '@/components/dashboard';
   import { useState, useEffect } from "react";
   
-  export default function About() {
+  export default function Page() {
     const [connectedAddress, setConnectedAddress] = useState<string | null>(null);
 
     useEffect(() => {
@@ -24,7 +24,10 @@
         <div>
           <Dashboard connectedAddress={connectedAddress} />
         </div>
-        <Timeline />
+        <div>
+          {/* ...other dashboard UI */}
+          <DashboardTimeline />
+        </div>
         <div>
           {/* Other components can go here */}
         </div>
