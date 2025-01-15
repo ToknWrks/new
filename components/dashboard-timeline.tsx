@@ -72,13 +72,11 @@ export default function Timeline() {
                       aria-hidden="true"
                     />
                     <h4 className="font-nacelle text-xl font-semibold text-gray-200">
-                      Launched the first Open PRO Advanced plan
+                      Claimed 32.04 OSMO
                     </h4>
                   </div>
                   <p className="text-[1rem] text-indigo-200/65">
-                    Pretium lectus quam id leo. Urna et pharetra pharetra massa
-                    massa. Adipiscing enim eu neque aliquam vestibulum morbi
-                    blandit cursus risus.
+                  Price Per OSMO: $.59 , Cost Basis: $22.22 <br></br>Transaction hash with link to mintscan
                   </p>
                 </div>
               </div>

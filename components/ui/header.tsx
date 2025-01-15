@@ -18,30 +18,26 @@ declare global {
 
 export default function Header() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [connectedAddress, setConnectedAddress] = useState<string | null>(null);
+  const [connectedAddresses, setConnectedAddresses] = useState<{ cosmos: string | null; osmosis: string | null }>({ cosmos: null, osmosis: null });
 
   useEffect(() => {
-    // Load the connected address from localStorage when the component mounts
-    const storedKeplrAddress = localStorage.getItem("keplrAddress");
-    const storedLeapAddress = localStorage.getItem("leapAddress");
-    if (storedKeplrAddress) {
-      setConnectedAddress(storedKeplrAddress);
-    } else if (storedLeapAddress) {
-      setConnectedAddress(storedLeapAddress);
+    const storedKeplrCosmos = localStorage.getItem("keplrCosmosHubAddress");
+    const storedKeplrOsmosis = localStorage.getItem("keplrOsmosisAddress");
+    if (storedKeplrCosmos && storedKeplrOsmosis) {
+      setConnectedAddresses({ cosmos: storedKeplrCosmos, osmosis: storedKeplrOsmosis });
     }
   }, []);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const handleWalletConnect = (address: string) => {
-    setConnectedAddress(address);
+  const handleWalletConnect = (wallet: string, cosmosHubAddress: string, osmosisAddress: string) => {
+    setConnectedAddresses({ cosmos: cosmosHubAddress, osmosis: osmosisAddress });
     closeModal();
   };
 
-  const truncateAddress = (address: string) => {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
+  const truncateAddress = (address: string) => `${address.slice(0, 6)}...${address.slice(-4)}`;
+
 
   return (
     <header className="z-30 mt-2 w-full md:mt-5">
