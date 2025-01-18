@@ -12,6 +12,10 @@
     "@chain-registry/client": "^1.53.50",
     "@cosmjs/proto-signing": "^0.32.4",
     "@cosmjs/stargate": "^0.32.4",
+    "@cosmos-kit/core": "^2.15.1",
+    "@cosmos-kit/keplr": "^2.14.3",
+    "@cosmos-kit/leap": "^2.14.3",
+    "@cosmos-kit/react": "^2.21.2",
     "@headlessui/react": "^2.1.2",
     "@headlessui/tailwindcss": "^0.2.1",
     "@mdx-js/loader": "^3.0.1",
@@ -35,6 +39,7 @@
     "p-limit": "^6.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-loading-skeleton": "^3.5.0",
     "rehype-pretty-code": "^0.13.2",
     "shiki": "^1.14.1",
     "typescript": "^5.5.4"

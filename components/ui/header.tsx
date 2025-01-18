@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Logo from "./logo";
 import Dropdown from "@/components/dropdown";
@@ -19,10 +19,47 @@ declare global {
 
 export default function Header() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { wallet, cosmosAddress, osmosisAddress, akashAddress, connectWallet, disconnectWallet } = useWallet();
+  const { wallet, cosmosAddress, osmosisAddress, akashAddress, regenAddress, celestiaAddress, connectWallet, disconnectWallet } = useWallet();
+
+  useEffect(() => {
+    const storedWallet = localStorage.getItem("wallet");
+    if (storedWallet) {
+      connectWallet(storedWallet, {
+        cosmosAddress: localStorage.getItem("cosmosAddress"),
+        osmosisAddress: localStorage.getItem("osmosisAddress"),
+        akashAddress: localStorage.getItem("akashAddress"),
+        regenAddress: localStorage.getItem("regenAddress"),
+        celestiaAddress: localStorage.getItem("celestiaAddress"),
+
+      });
+    }
+  }, [connectWallet]);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
+
+  const handleConnectWallet = async (wallet: string, addresses: Record<string, string | null>) => {
+    await connectWallet(wallet, addresses);
+    localStorage.setItem("wallet", wallet);
+    localStorage.setItem("cosmosAddress", addresses.cosmosAddress || "");
+    localStorage.setItem("osmosisAddress", addresses.osmosisAddress || "");
+    localStorage.setItem("akashAddress", addresses.akashAddress || "");
+    localStorage.setItem("regenAddress", addresses.regenAddress || "");
+    localStorage.setItem("celestiaAddress", addresses.celestiaAddress || "");
+    closeModal();
+    window.location.reload();
+  };
+
+  const handleDisconnectWallet = async () => {
+    await disconnectWallet();
+    localStorage.removeItem("wallet");
+    localStorage.removeItem("cosmosAddress");
+    localStorage.removeItem("osmosisAddress");
+    localStorage.removeItem("akashAddress");
+    localStorage.removeItem("regenAddress");
+    localStorage.removeItem("celestiaAddress");
+    window.location.reload();
+  };
 
   return (
     <header className="z-30 mt-2 w-full md:mt-5">
@@ -119,12 +156,21 @@ export default function Header() {
               </Link>
             </li>
             <li>
-              <button
-                onClick={openModal}
-                className="btn-sm relative bg-gradient-to-b from-gray-800 to-gray-800/60 bg-[length:100%_100%] bg-[bottom] py-[5px] text-gray-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,theme(colors.gray.800),theme(colors.gray.700),theme(colors.gray.800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:bg-[length:100%_150%]"
-              >
-                Wallet
-              </button>
+              {wallet ? (
+                <button
+                  onClick={handleDisconnectWallet}
+                  className="btn-sm relative bg-gradient-to-b from-gray-800 to-gray-800/60 bg-[length:100%_100%] bg-[bottom] py-[5px] text-gray-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,theme(colors.gray.800),theme(colors.gray.700),theme(colors.gray.800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:bg-[length:100%_150%]"
+                >
+                  Disconnect
+                </button>
+              ) : (
+                <button
+                  onClick={openModal}
+                  className="btn-sm relative bg-gradient-to-b from-gray-800 to-gray-800/60 bg-[length:100%_100%] bg-[bottom] py-[5px] text-gray-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,theme(colors.gray.800),theme(colors.gray.700),theme(colors.gray.800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:bg-[length:100%_150%]"
+                >
+                  Wallet
+                </button>
+              )}
             </li>
           </ul>
 
@@ -134,7 +180,7 @@ export default function Header() {
 
       {/* Modal */}
       <Modal isOpen={isModalOpen} onClose={closeModal}>
-        <WalletConnection onConnect={connectWallet} />
+        <WalletConnection onConnect={handleConnectWallet} />
       </Modal>
     </header>
   );

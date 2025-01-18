@@ -1,11 +1,11 @@
 "use client";
 import React from "react";
 import DoughnutChart from "./charts/doughnut-chart";
-import DashboardCosmos from "./dashboard-cosmos";
-import DashboardOsmosis from "./dashboard-osmosis";
-import DashboardAkash from "./dashboard-akash";
-import DashboardRegen from "./dashboard-regen";
-import DashboardCelestia from "./dashboard-celestia";
+import { useWallet } from "@/components/WalletContext";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+import Image from "next/image";
+import BlurredShape from "@/public/images/blurred-shape.svg";
 
 interface DashboardTotalProps {
   totalWalletValue: number;
@@ -17,6 +17,8 @@ interface DashboardTotalProps {
 }
 
 export default function DashboardTotal({ totalWalletValue, cosmosValue, osmosisValue, akashValue, regenValue, celestiaValue }: DashboardTotalProps) {
+  const { wallet } = useWallet();
+
   const data = {
     labels: ["ATOM", "OSMO", "AKT", "REGEN", "TIA"],
     datasets: [

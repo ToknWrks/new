@@ -8,19 +8,24 @@ import DashboardAkash from "@/components/dashboard-akash";
 import DashboardRegen from "@/components/dashboard-regen";
 import DashboardCelestia from "@/components/dashboard-celestia";
 import DashboardTotal from "@/components/dashboard-all"; // Adjust the import path as needed
-import { useWallet } from "@/components/WalletContext"; // Adjust the import path as needed
+import { useWallet } from "@/components/WalletContext";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+import Image from "next/image";
+import BlurredShape from "@/public/images/blurred-shape.svg";
+
 
 const limit = pLimit(1); // Limit to 1 concurrent request
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 const Page = () => {
+  const { wallet, cosmosAddress, osmosisAddress, akashAddress, regenAddress, celestiaAddress } = useWallet();
   const [cosmosPrice, setCosmosPrice] = useState<number | null>(null);
   const [osmosisPrice, setOsmosisPrice] = useState<number | null>(null);
   const [akashPrice, setAkashPrice] = useState<number | null>(null);
   const [regenPrice, setRegenPrice] = useState<number | null>(null);
   const [celestiaPrice, setCelestiaPrice] = useState<number | null>(null);
-  const { cosmosAddress, osmosisAddress, akashAddress, regenAddress, celestiaAddress, setCosmosAddress, setOsmosisAddress, setAkashAddress, setRegenAddress, setCelestiaAddress } = useWallet();
   const [totalWalletValue, setTotalWalletValue] = useState<number>(0);
   const [cosmosValue, setCosmosValue] = useState<number>(0);
   const [osmosisValue, setOsmosisValue] = useState<number>(0);
@@ -28,11 +33,12 @@ const Page = () => {
   const [regenValue, setRegenValue] = useState<number>(0);
   const [celestiaValue, setCelestiaValue] = useState<number>(0);
   const [visibleCards, setVisibleCards] = useState<number>(6); // Initial number of visible cards
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchPrices = async () => {
-      try {
-        const fetchCosmosPrice = limit(async () => {
+      const fetchFunctions = [
+        async () => {
           const cosmosUrl = "https://api.coingecko.com/api/v3/simple/price?ids=cosmos&vs_currencies=usd";
           try {
             const cosmosRes = await fetch(cosmosUrl);
@@ -43,9 +49,8 @@ const Page = () => {
           } catch (error) {
             console.error("Error fetching Cosmos price:", error);
           }
-        });
-
-        const fetchOsmosisPrice = limit(async () => {
+        },
+        async () => {
           const osmosisUrl = "https://api.coingecko.com/api/v3/simple/price?ids=osmosis&vs_currencies=usd";
           try {
             const osmosisRes = await fetch(osmosisUrl);
@@ -56,9 +61,8 @@ const Page = () => {
           } catch (error) {
             console.error("Error fetching Osmosis price:", error);
           }
-        });
-
-        const fetchAkashPrice = limit(async () => {
+        },
+        async () => {
           const akashUrl = "https://api.coingecko.com/api/v3/simple/price?ids=akash-network&vs_currencies=usd";
           try {
             const akashRes = await fetch(akashUrl);
@@ -69,9 +73,8 @@ const Page = () => {
           } catch (error) {
             console.error("Error fetching Akash price:", error);
           }
-        });
-
-        const fetchRegenPrice = limit(async () => {
+        },
+        async () => {
           const regenUrl = "https://api.coingecko.com/api/v3/simple/price?ids=regen&vs_currencies=usd";
           try {
             const regenRes = await fetch(regenUrl);
@@ -82,9 +85,8 @@ const Page = () => {
           } catch (error) {
             console.error("Error fetching Regen price:", error);
           }
-        });
-
-        const fetchCelestiaPrice = limit(async () => {
+        },
+        async () => {
           const celestiaUrl = "https://api.coingecko.com/api/v3/simple/price?ids=celestia&vs_currencies=usd";
           try {
             const celestiaRes = await fetch(celestiaUrl);
@@ -95,115 +97,23 @@ const Page = () => {
           } catch (error) {
             console.error("Error fetching Celestia price:", error);
           }
-        });
+        },
+      ];
 
-        await fetchCosmosPrice;
-        await delay(5000); // 5 seconds delay
-        await fetchOsmosisPrice;
-        await delay(5000); // 5 seconds delay
-        await fetchAkashPrice;
-        await delay(5000); // 5 seconds delay
-        await fetchRegenPrice;
-        await delay(5000); // 5 seconds delay
-        await fetchCelestiaPrice;
+      try {
+        for (const fetchFunction of fetchFunctions) {
+          await fetchFunction();
+          await delay(3000); // 5 seconds delay between each API call
+        }
+        setLoading(false);
       } catch (err) {
         console.error("Failed to fetch prices:", err);
+        setLoading(false);
       }
     };
 
     fetchPrices();
   }, []);
-
-  useEffect(() => {
-    const enableChains = async () => {
-      if (!window.keplr && !window.leap) {
-        console.warn("Keplr or Leap extension is not installed");
-        return;
-      }
-
-      try {
-        if (cosmosAddress) {
-          // Enable Cosmos Hub chain
-          if (window.keplr) {
-            await window.keplr.enable("cosmoshub-4");
-            const cosmosOfflineSigner = window.keplr.getOfflineSigner("cosmoshub-4");
-            const cosmosAccounts = await cosmosOfflineSigner.getAccounts();
-            setCosmosAddress(cosmosAccounts[0].address);
-          } else if (window.leap) {
-            await window.leap.enable("cosmoshub-4");
-            const cosmosOfflineSigner = window.leap.getOfflineSigner("cosmoshub-4");
-            const cosmosAccounts = await cosmosOfflineSigner.getAccounts();
-            setCosmosAddress(cosmosAccounts[0].address);
-          }
-        }
-
-        if (osmosisAddress) {
-          // Enable Osmosis chain
-          if (window.keplr) {
-            await window.keplr.enable("osmosis-1");
-            const osmosisOfflineSigner = window.keplr.getOfflineSigner("osmosis-1");
-            const osmosisAccounts = await osmosisOfflineSigner.getAccounts();
-            setOsmosisAddress(osmosisAccounts[0].address);
-          } else if (window.leap) {
-            await window.leap.enable("osmosis-1");
-            const osmosisOfflineSigner = window.leap.getOfflineSigner("osmosis-1");
-            const osmosisAccounts = await osmosisOfflineSigner.getAccounts();
-            setOsmosisAddress(osmosisAccounts[0].address);
-          }
-        }
-
-        if (akashAddress) {
-          // Enable Akash chain
-          if (window.keplr) {
-            await window.keplr.enable("akashnet-2");
-            const akashOfflineSigner = window.keplr.getOfflineSigner("akashnet-2");
-            const akashAccounts = await akashOfflineSigner.getAccounts();
-            setAkashAddress(akashAccounts[0].address);
-          } else if (window.leap) {
-            await window.leap.enable("akashnet-2");
-            const akashOfflineSigner = window.leap.getOfflineSigner("akashnet-2");
-            const akashAccounts = await akashOfflineSigner.getAccounts();
-            setAkashAddress(akashAccounts[0].address);
-          }
-        }
-
-        if (regenAddress) {
-          // Enable Regen chain
-          if (window.keplr) {
-            await window.keplr.enable("regen-1");
-            const regenOfflineSigner = window.keplr.getOfflineSigner("regen-1");
-            const regenAccounts = await regenOfflineSigner.getAccounts();
-            setRegenAddress(regenAccounts[0].address);
-          } else if (window.leap) {
-            await window.leap.enable("regen-1");
-            const regenOfflineSigner = window.leap.getOfflineSigner("regen-1");
-            const regenAccounts = await regenOfflineSigner.getAccounts();
-            setRegenAddress(regenAccounts[0].address);
-          }
-        }
-
-        if (celestiaAddress) {
-          // Enable Celestia chain
-          if (window.keplr) {
-            await window.keplr.enable("celestia-1");
-            const celestiaOfflineSigner = window.keplr.getOfflineSigner("celestia-1");
-            const celestiaAccounts = await celestiaOfflineSigner.getAccounts();
-            setCelestiaAddress(celestiaAccounts[0].address);
-          } else if (window.leap) {
-            await window.leap.enable("celestia-1");
-            const celestiaOfflineSigner = window.leap.getOfflineSigner("celestia-1");
-            const celestiaAccounts = await celestiaOfflineSigner.getAccounts();
-            setCelestiaAddress(celestiaAccounts[0].address);
-          }
-        }
-
-      } catch (err) {
-        console.error("Failed to enable chains:", err);
-      }
-    };
-
-    enableChains();
-  }, [cosmosAddress, osmosisAddress, akashAddress, regenAddress, celestiaAddress]);
 
   const handleTotalValueChange = (value: number) => {
     console.log("Updating total wallet value by:", value);
@@ -217,75 +127,131 @@ const Page = () => {
   const loadMoreCards = () => {
     setVisibleCards((prevVisibleCards) => prevVisibleCards + 4); // Load 4 more card each time
   };
+  if (!wallet) {
+    return (
+      <section className="relative">
+      <div
+        className="pointer-events-none absolute bottom-0 left-1/2 -z-10 -mb-20 -translate-x-1/3"
+        aria-hidden="true"
+      >
+        <Image
+          className="max-w-none"
+          src={BlurredShape}
+          width={760}
+          height={668}
+          alt="Blurred shape"
+        />
+      </div>
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="border-t py-12 [border-image:linear-gradient(to_right,transparent,theme(colors.slate.400/.25),transparent)1] md:py-20">
+          {/* Section header */}
+          <div className="mx-auto max-w-3xl text-center">
+            <div className="inline-flex items-center gap-3 pb-3 before:h-px before:w-8 before:bg-gradient-to-r before:from-transparent before:to-indigo-200/50 after:h-px after:w-8 after:bg-gradient-to-l after:from-transparent after:to-indigo-200/50">
+             
+            </div>
+            <h2 className="animate-[gradient_6s_linear_infinite] bg-[linear-gradient(to_right,theme(colors.gray.200),theme(colors.indigo.200),theme(colors.gray.50),theme(colors.indigo.300),theme(colors.gray.200))] bg-[length:200%_auto] bg-clip-text pb-10 font-nacelle text-3xl font-semibold text-transparent md:text-4xl">
+              Connect Wallet
+            </h2>
+          </div>
+        
+        </div>
+      </div>
+    </section>
+    );
+  }
 
   return (
     <>
       <div className="mx-auto max-w-6xl px-5 sm:px-6 pt-1 w-full">
         <div className="mx-auto grid w-full items-start gap-7 md:max-w-2xl md:grid-cols-2 xl:max-w-none xl:grid-cols-4 xl:gap-6">
           {/* Total Wallet Value */}
-          <DashboardTotal
-            totalWalletValue={totalWalletValue}
-            cosmosValue={cosmosValue}
-            osmosisValue={osmosisValue}
-            akashValue={akashValue}
-            regenValue={regenValue}
-            celestiaValue={celestiaValue}
-          />
+          {loading ? (
+            <Skeleton height={150} baseColor="#17202a" highlightColor="#1c2833" borderRadius={15} />
+          ) : (
+            <DashboardTotal
+              totalWalletValue={totalWalletValue}
+              cosmosValue={cosmosValue}
+              osmosisValue={osmosisValue}
+              akashValue={akashValue}
+              regenValue={regenValue}
+              celestiaValue={celestiaValue}
+            />
+          )}
 
           {/* Cosmos Hub Dashboard */}
-          {cosmosAddress && cosmosPrice !== null && visibleCards > 1 && (
-            <DashboardCosmos
-              connectedAddress={cosmosAddress}
-              cosmosPrice={cosmosPrice}
-              onTotalValueChange={(value) => {
-                handleTotalValueChange(value);
-                setCosmosValue(value);
-              }}
-            />
+          {loading ? (
+            <Skeleton height={150} baseColor="#17202a" highlightColor="#1c2833" borderRadius={15} />
+          ) : (
+            cosmosAddress && cosmosPrice !== null && visibleCards > 1 && (
+              <DashboardCosmos
+                connectedAddress={cosmosAddress}
+                cosmosPrice={cosmosPrice}
+                onTotalValueChange={(value) => {
+                  handleTotalValueChange(value);
+                  setCosmosValue(value);
+                }}
+              />
+            )
           )}
           {/* Osmosis Dashboard */}
-          {osmosisAddress && osmosisPrice !== null && visibleCards > 2 && (
-            <DashboardOsmosis
-              connectedAddress={osmosisAddress}
-              osmosisPrice={osmosisPrice}
-              onTotalValueChange={(value) => {
-                handleTotalValueChange(value);
-                setOsmosisValue(value);
-              }}
-            />
+          {loading ? (
+            <Skeleton height={150} baseColor="#17202a" highlightColor="#1c2833" borderRadius={15} />
+          ) : (
+            osmosisAddress && osmosisPrice !== null && visibleCards > 2 && (
+              <DashboardOsmosis
+                connectedAddress={osmosisAddress}
+                osmosisPrice={osmosisPrice}
+                onTotalValueChange={(value) => {
+                  handleTotalValueChange(value);
+                  setOsmosisValue(value);
+                }}
+              />
+            )
           )}
           {/* Akash Dashboard */}
-          {akashAddress && akashPrice !== null && visibleCards > 3 && (
-            <DashboardAkash
-              connectedAddress={akashAddress}
-              akashPrice={akashPrice}
-              onTotalValueChange={(value) => {
-                handleTotalValueChange(value);
-                setAkashValue(value);
-              }}
-            />
+          {loading ? (
+            <Skeleton height={150} baseColor="#17202a" highlightColor="#1c2833" borderRadius={15} />
+          ) : (
+            akashAddress && akashPrice !== null && visibleCards > 3 && (
+              <DashboardAkash
+                connectedAddress={akashAddress}
+                akashPrice={akashPrice}
+                onTotalValueChange={(value) => {
+                  handleTotalValueChange(value);
+                  setAkashValue(value);
+                }}
+              />
+            )
           )}
           {/* Regen Dashboard */}
-          {regenAddress && regenPrice !== null && visibleCards > 4 && (
-            <DashboardRegen
-              connectedAddress={regenAddress}
-              regenPrice={regenPrice}
-              onTotalValueChange={(value) => {
-                handleTotalValueChange(value);
-                setRegenValue(value);
-              }}
-            />
+          {loading ? (
+            <Skeleton height={150} baseColor="#17202a" highlightColor="#1c2833" borderRadius={15} />
+          ) : (
+            regenAddress && regenPrice !== null && visibleCards > 4 && (
+              <DashboardRegen
+                connectedAddress={regenAddress}
+                regenPrice={regenPrice}
+                onTotalValueChange={(value) => {
+                  handleTotalValueChange(value);
+                  setRegenValue(value);
+                }}
+              />
+            )
           )}
           {/* Celestia Dashboard */}
-          {celestiaAddress && celestiaPrice !== null && visibleCards > 5 && (
-            <DashboardCelestia
-              connectedAddress={celestiaAddress}
-              tiaPrice={celestiaPrice}
-              onTotalValueChange={(value) => {
-                handleTotalValueChange(value);
-                setCelestiaValue(value);
-              }}
-            />
+          {loading ? (
+            <Skeleton height={150} baseColor="#17202a" highlightColor="#1c2833" borderRadius={15} />
+          ) : (
+            celestiaAddress && celestiaPrice !== null && visibleCards > 5 && (
+              <DashboardCelestia
+                connectedAddress={celestiaAddress}
+                tiaPrice={celestiaPrice}
+                onTotalValueChange={(value) => {
+                  handleTotalValueChange(value);
+                  setCelestiaValue(value);
+                }}
+              />
+            )
           )}
         </div>
         {visibleCards < 8 && (

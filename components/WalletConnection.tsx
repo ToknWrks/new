@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useWallet } from "@/components/WalletContext";
-
 declare global {
   interface Window {
     keplr: any;

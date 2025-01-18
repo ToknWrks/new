@@ -161,7 +161,7 @@ const DashboardCosmos: React.FC<DashboardCosmosProps> = ({ connectedAddress, cos
       // Adjust fee for your chain
       const fee = {
         amount: [{ denom: "uatom", amount: "1000000" }], // 2,000,000 uatom = 2.0 atom as fee example
-        gas: "1000000",
+        gas: "100000",
       };
 
       const result = await client.signAndBroadcast(
