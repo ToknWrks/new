@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@chain-registry/client": "^1.53.50",
     "@cosmjs/proto-signing": "^0.32.4",
     "@cosmjs/stargate": "^0.32.4",
     "@headlessui/react": "^2.1.2",
@@ -23,7 +24,9 @@
     "@walletconnect/core": "^2.17.3",
     "@walletconnect/utils": "^2.17.3",
     "aos": "^3.0.0-beta.6",
+    "chain-registry": "^1.69.94",
     "chart.js": "^4.4.7",
+    "chartjs-adapter-moment": "^1.0.1",
     "date-fns": "^3.6.0",
     "next": "^14.2.5",
     "next-mdx-remote": "^5.0.0",

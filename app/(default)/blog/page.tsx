@@ -5,7 +5,7 @@ import BlogFilters from "./filters";
 import PostItem from "@/app/(default)/blog/post-item";
 
 export const metadata = {
-  title: "Blog - Open PRO",
+  title: "Blog - ToknWrks",
   description: "Page description",
 };
 
@@ -32,12 +32,11 @@ export default function Blog() {
             {/* Section header */}
             <div className="pb-12 text-center">
               <h1 className="animate-[gradient_6s_linear_infinite] bg-[linear-gradient(to_right,theme(colors.gray.200),theme(colors.indigo.200),theme(colors.gray.50),theme(colors.indigo.300),theme(colors.gray.200))] bg-[length:200%_auto] bg-clip-text pb-5 font-nacelle text-4xl font-semibold text-transparent md:text-5xl">
-                The Open PRO Blog
+                The ToknWrks Blog
               </h1>
               <div className="mx-auto max-w-3xl">
                 <p className="text-xl text-indigo-200/65">
-                  Discover the latest news, tips and user research insights from
-                  Open PRO.
+                  An attempt at documenting the journey of building ToknWrks.
                 </p>
               </div>
             </div>

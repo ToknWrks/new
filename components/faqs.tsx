@@ -6,7 +6,7 @@ export default function Faqs() {
           {/* Section header */}
           <div className="mb-12">
             <h2 className="animate-[gradient_6s_linear_infinite] bg-[linear-gradient(to_right,theme(colors.gray.200),theme(colors.indigo.200),theme(colors.gray.50),theme(colors.indigo.300),theme(colors.gray.200))] bg-[length:200%_auto] bg-clip-text pb-4 font-nacelle text-2xl font-semibold text-transparent md:text-3xl">
-              Frequently Asked Questions
+              To Do list
             </h2>
           </div>
           {/* Faqs */}

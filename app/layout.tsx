@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import localFont from "next/font/local";
 
 import Header from "@/components/ui/header";
+import { WalletProvider } from "@/components/WalletContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -53,10 +54,12 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${nacelle.variable} bg-gray-950 font-inter text-base text-gray-200 antialiased`}
       >
+        <WalletProvider>
         <div className="flex min-h-screen flex-col overflow-hidden supports-[overflow:clip]:overflow-clip">
           <Header />
           {children}
         </div>
+        </WalletProvider>
       </body>
     </html>
   );

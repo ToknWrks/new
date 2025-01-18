@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Logo from "./logo";
 import Dropdown from "@/components/dropdown";
 import MobileMenu from "./mobile-menu";
 import Modal from "@/components/Modal";
 import WalletConnection from "@/components/WalletConnection";
+import { useWallet } from "@/components/WalletContext";
 
 declare global {
   interface Window {
@@ -18,26 +19,10 @@ declare global {
 
 export default function Header() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [connectedAddresses, setConnectedAddresses] = useState<{ cosmos: string | null; osmosis: string | null }>({ cosmos: null, osmosis: null });
-
-  useEffect(() => {
-    const storedKeplrCosmos = localStorage.getItem("keplrCosmosHubAddress");
-    const storedKeplrOsmosis = localStorage.getItem("keplrOsmosisAddress");
-    if (storedKeplrCosmos && storedKeplrOsmosis) {
-      setConnectedAddresses({ cosmos: storedKeplrCosmos, osmosis: storedKeplrOsmosis });
-    }
-  }, []);
+  const { wallet, cosmosAddress, osmosisAddress, akashAddress, connectWallet, disconnectWallet } = useWallet();
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
-
-  const handleWalletConnect = (wallet: string, cosmosHubAddress: string, osmosisAddress: string) => {
-    setConnectedAddresses({ cosmos: cosmosHubAddress, osmosis: osmosisAddress });
-    closeModal();
-  };
-
-  const truncateAddress = (address: string) => `${address.slice(0, 6)}...${address.slice(-4)}`;
-
 
   return (
     <header className="z-30 mt-2 w-full md:mt-5">
@@ -149,7 +134,7 @@ export default function Header() {
 
       {/* Modal */}
       <Modal isOpen={isModalOpen} onClose={closeModal}>
-        <WalletConnection onConnect={handleWalletConnect} />
+        <WalletConnection onConnect={connectWallet} />
       </Modal>
     </header>
   );
