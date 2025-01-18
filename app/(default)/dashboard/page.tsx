@@ -233,7 +233,7 @@ const Page = () => {
           />
 
           {/* Cosmos Hub Dashboard */}
-          {cosmosAddress && cosmosPrice !== null && cosmosValue > 0 && visibleCards > 1 && (
+          {cosmosAddress && cosmosPrice !== null && visibleCards > 1 && (
             <DashboardCosmos
               connectedAddress={cosmosAddress}
               cosmosPrice={cosmosPrice}
@@ -244,7 +244,7 @@ const Page = () => {
             />
           )}
           {/* Osmosis Dashboard */}
-          {osmosisAddress && osmosisPrice !== null && osmosisValue > 0 && visibleCards > 2 && (
+          {osmosisAddress && osmosisPrice !== null && visibleCards > 2 && (
             <DashboardOsmosis
               connectedAddress={osmosisAddress}
               osmosisPrice={osmosisPrice}
@@ -255,7 +255,7 @@ const Page = () => {
             />
           )}
           {/* Akash Dashboard */}
-          {akashAddress && akashPrice !== null && akashValue > 0 && visibleCards > 3 && (
+          {akashAddress && akashPrice !== null && visibleCards > 3 && (
             <DashboardAkash
               connectedAddress={akashAddress}
               akashPrice={akashPrice}
@@ -266,7 +266,7 @@ const Page = () => {
             />
           )}
           {/* Regen Dashboard */}
-          {regenAddress && regenPrice !== null && regenValue > 0 && visibleCards > 4 && (
+          {regenAddress && regenPrice !== null && visibleCards > 4 && (
             <DashboardRegen
               connectedAddress={regenAddress}
               regenPrice={regenPrice}
@@ -277,7 +277,7 @@ const Page = () => {
             />
           )}
           {/* Celestia Dashboard */}
-          {celestiaAddress && celestiaPrice !== null && celestiaValue > 0 && visibleCards > 5 && (
+          {celestiaAddress && celestiaPrice !== null && visibleCards > 5 && (
             <DashboardCelestia
               connectedAddress={celestiaAddress}
               tiaPrice={celestiaPrice}
