@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { SigningStargateClient, MsgWithdrawDelegatorRewardEncodeObject } from "@cosmjs/stargate";
-import { REGEN } from "@/components/chains"; // Adjust the import path as needed
+import { REGEN } from "@/components/toknwrks/chains"; // Adjust the import path as needed
 
 interface DashboardRegenProps {
   connectedAddress: string;

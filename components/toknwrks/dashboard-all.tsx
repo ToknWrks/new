@@ -1,11 +1,14 @@
 "use client";
 import React from "react";
-import DoughnutChart from "./charts/doughnut-chart";
-import { useWallet } from "@/components/WalletContext";
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
-import Image from "next/image";
-import BlurredShape from "@/public/images/blurred-shape.svg";
+import DoughnutChart from "../charts/doughnut-chart";
+import DashboardCosmos from "../toknwrks/dashboard-cosmos";
+import DashboardOsmosis from "../toknwrks/dashboard-osmosis";
+import DashboardAkash from "../toknwrks/dashboard-akash";
+import DashboardRegen from "../toknwrks/dashboard-regen";
+import DashboardCelestia from "../toknwrks/dashboard-celestia";
+import { useState } from "react";
+import Modal from "../Modal";
+import ClaimPreview from "./claim-preview";
 
 interface DashboardTotalProps {
   totalWalletValue: number;
@@ -17,8 +20,6 @@ interface DashboardTotalProps {
 }
 
 export default function DashboardTotal({ totalWalletValue, cosmosValue, osmosisValue, akashValue, regenValue, celestiaValue }: DashboardTotalProps) {
-  const { wallet } = useWallet();
-
   const data = {
     labels: ["ATOM", "OSMO", "AKT", "REGEN", "TIA"],
     datasets: [
@@ -29,6 +30,10 @@ export default function DashboardTotal({ totalWalletValue, cosmosValue, osmosisV
       },
     ],
   };
+  const [isClaimsModalOpen, setIsClaimsModalOpen] = useState(false);
+  const openClaimsModal = () => setIsClaimsModalOpen(true);
+  const closeClaimsModal = () => setIsClaimsModalOpen(false);
+
 
   return (
     <section>
@@ -44,6 +49,7 @@ export default function DashboardTotal({ totalWalletValue, cosmosValue, osmosisV
             Staked, Liquid, and Rewards
           </div>
           <button
+           onClick={openClaimsModal}
             className="btn-sm relative w-full bg-gradient-to-b from-gray-800 to-gray-800/60 bg-[length:100%_100%] bg-[bottom] text-gray-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,theme(colors.gray.800),theme(colors.gray.700),theme(colors.gray.800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:bg-[length:100%_150%]"
           
           >
@@ -55,6 +61,14 @@ export default function DashboardTotal({ totalWalletValue, cosmosValue, osmosisV
           <DoughnutChart data={data} width={165} height={165} />
         </div>
       </div>
+
+       {/* Claims Modal */}
+ {isClaimsModalOpen && (
+  <Modal isOpen={isClaimsModalOpen} onClose={closeClaimsModal}>
+    <ClaimPreview  />
+  </Modal>
+)}
     </section>
   );
 }
+

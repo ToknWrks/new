@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useWallet } from "@/components/WalletContext";
+import { useWallet } from "@/components/toknwrks/WalletContext";
+
 declare global {
   interface Window {
     keplr: any;

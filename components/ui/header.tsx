@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Logo from "./logo";
 import Dropdown from "@/components/dropdown";
 import MobileMenu from "./mobile-menu";
 import Modal from "@/components/Modal";
-import WalletConnection from "@/components/WalletConnection";
-import { useWallet } from "@/components/WalletContext";
+import WalletConnection from "@/components/toknwrks/WalletConnection";
+import { useWallet } from "@/components/toknwrks/WalletContext";
+import DashboardSettings from "../toknwrks/dashboard-settings";
 
 declare global {
   interface Window {
@@ -18,48 +19,16 @@ declare global {
 }
 
 export default function Header() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const { wallet, cosmosAddress, osmosisAddress, akashAddress, regenAddress, celestiaAddress, connectWallet, disconnectWallet } = useWallet();
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const { connectWallet } = useWallet();
 
-  useEffect(() => {
-    const storedWallet = localStorage.getItem("wallet");
-    if (storedWallet) {
-      connectWallet(storedWallet, {
-        cosmosAddress: localStorage.getItem("cosmosAddress"),
-        osmosisAddress: localStorage.getItem("osmosisAddress"),
-        akashAddress: localStorage.getItem("akashAddress"),
-        regenAddress: localStorage.getItem("regenAddress"),
-        celestiaAddress: localStorage.getItem("celestiaAddress"),
+  const openWalletModal = () => setIsWalletModalOpen(true);
+  const closeWalletModal = () => setIsWalletModalOpen(false);
 
-      });
-    }
-  }, [connectWallet]);
+  const openSettingsModal = () => setIsSettingsModalOpen(true);
+  const closeSettingsModal = () => setIsSettingsModalOpen(false);
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
-
-  const handleConnectWallet = async (wallet: string, addresses: Record<string, string | null>) => {
-    await connectWallet(wallet, addresses);
-    localStorage.setItem("wallet", wallet);
-    localStorage.setItem("cosmosAddress", addresses.cosmosAddress || "");
-    localStorage.setItem("osmosisAddress", addresses.osmosisAddress || "");
-    localStorage.setItem("akashAddress", addresses.akashAddress || "");
-    localStorage.setItem("regenAddress", addresses.regenAddress || "");
-    localStorage.setItem("celestiaAddress", addresses.celestiaAddress || "");
-    closeModal();
-    window.location.reload();
-  };
-
-  const handleDisconnectWallet = async () => {
-    await disconnectWallet();
-    localStorage.removeItem("wallet");
-    localStorage.removeItem("cosmosAddress");
-    localStorage.removeItem("osmosisAddress");
-    localStorage.removeItem("akashAddress");
-    localStorage.removeItem("regenAddress");
-    localStorage.removeItem("celestiaAddress");
-    window.location.reload();
-  };
 
   return (
     <header className="z-30 mt-2 w-full md:mt-5">
@@ -84,10 +53,10 @@ export default function Header() {
               </li>
               <li>
                 <Link
-                  href="/about"
+                  href="/dashboard"
                   className="flex items-center px-2 py-1 text-gray-200 transition hover:text-indigo-500 lg:px-3"
                 >
-                  About Us
+                  Dashboard
                 </Link>
               </li>
               <li>
@@ -107,36 +76,27 @@ export default function Header() {
                 </Link>
               </li>
               {/* 1st level: hover */}
-              <Dropdown title="Resources">
+              <Dropdown title="Settings">
                 {/* 2nd level: hover */}
                 <li>
-                  <Link
-                    href="/newsletter"
-                    className="flex rounded-lg px-2 py-1.5 text-sm text-white hover:text-indigo-500"
-                  >
-                    Newsletter
-                  </Link>
-                </li>
+                    <button
+                      onClick={openSettingsModal}
+                      className="flex rounded-lg px-2 py-1.5 text-sm text-white hover:text-indigo-500"
+                    >
+                      Tax &  Swap
+                    </button>
+                  </li>
                 <li>
                   <Link
-                    href="/contact"
+                    href="/settings"
                     className="flex rounded-lg px-2 py-1.5 text-sm text-white hover:text-indigo-500"
                   >
-                    Contact Us
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/404"
-                    className="flex rounded-lg px-2 py-1.5 text-sm text-white hover:text-indigo-500"
-                  >
-                    404
+                    Chains
                   </Link>
                 </li>
               </Dropdown>
             </ul>
           </nav>
-
           {/* Desktop sign in links */}
           <ul className="flex flex-1 items-center justify-end gap-3">
             <li>
@@ -156,21 +116,12 @@ export default function Header() {
               </Link>
             </li>
             <li>
-              {wallet ? (
-                <button
-                  onClick={handleDisconnectWallet}
-                  className="btn-sm relative bg-gradient-to-b from-gray-800 to-gray-800/60 bg-[length:100%_100%] bg-[bottom] py-[5px] text-gray-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,theme(colors.gray.800),theme(colors.gray.700),theme(colors.gray.800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:bg-[length:100%_150%]"
-                >
-                  Disconnect
-                </button>
-              ) : (
-                <button
-                  onClick={openModal}
-                  className="btn-sm relative bg-gradient-to-b from-gray-800 to-gray-800/60 bg-[length:100%_100%] bg-[bottom] py-[5px] text-gray-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,theme(colors.gray.800),theme(colors.gray.700),theme(colors.gray.800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:bg-[length:100%_150%]"
-                >
-                  Wallet
-                </button>
-              )}
+              <button
+                onClick={openWalletModal}
+                className="btn-sm relative bg-gradient-to-b from-gray-800 to-gray-800/60 bg-[length:100%_100%] bg-[bottom] py-[5px] text-gray-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,theme(colors.gray.800),theme(colors.gray.700),theme(colors.gray.800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:bg-[length:100%_150%]"
+              >
+                Wallet
+              </button>
             </li>
           </ul>
 
@@ -178,10 +129,20 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Modal */}
-      <Modal isOpen={isModalOpen} onClose={closeModal}>
-        <WalletConnection onConnect={handleConnectWallet} />
-      </Modal>
+     {/* Wallet Modal */}
+     {isWalletModalOpen && (
+        <Modal isOpen={isWalletModalOpen} onClose={closeWalletModal}>
+          <WalletConnection onConnect={connectWallet} />
+        </Modal>
+      )}
+
+      {/* Settings Modal */}
+      {isSettingsModalOpen && (
+        <Modal isOpen={isSettingsModalOpen} onClose={closeSettingsModal}>
+          <DashboardSettings />
+        </Modal>
+      )}
+
     </header>
   );
 }

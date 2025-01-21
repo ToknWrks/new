@@ -4,6 +4,9 @@ import { useEffect } from "react";
 
 import AOS from "aos";
 import "aos/dist/aos.css";
+import 'primereact/resources/themes/saga-blue/theme.css';  // Theme
+import 'primereact/resources/primereact.min.css';          // Core CSS
+import 'primeicons/primeicons.css';  
 
 import Footer from "@/components/ui/footer";
 

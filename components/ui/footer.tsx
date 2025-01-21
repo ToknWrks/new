@@ -86,14 +86,7 @@ export default function Footer() {
                   About us
                 </a>
               </li>
-              <li>
-                <a
-                  className="text-indigo-200/65 transition hover:text-indigo-500"
-                  href="#0"
-                >
-                  Diversity &amp; Inclusion
-                </a>
-              </li>
+              
               <li>
                 <a
                   className="text-indigo-200/65 transition hover:text-indigo-500"
@@ -102,14 +95,7 @@ export default function Footer() {
                   Blog
                 </a>
               </li>
-              <li>
-                <a
-                  className="text-indigo-200/65 transition hover:text-indigo-500"
-                  href="#0"
-                >
-                  Careers
-                </a>
-              </li>
+             
               <li>
                 <a
                   className="text-indigo-200/65 transition hover:text-indigo-500"

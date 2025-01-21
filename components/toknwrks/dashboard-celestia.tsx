@@ -4,61 +4,61 @@ import {
   SigningStargateClient,
   MsgWithdrawDelegatorRewardEncodeObject,
 } from "@cosmjs/stargate";
-import { AKASH } from "@/components/chains";
+import { CELESTIA } from "@/components/toknwrks/chains";
 
 import Spotlight from "@/components/spotlight";
 
-interface DashboardAkashProps {
+interface DashboardCelestiaProps {
   connectedAddress: string;
-  akashPrice: number | null;
+  tiaPrice: number | null;
   onTotalValueChange: (value: number) => void;
 }
 
-const DashboardAkash: React.FC<DashboardAkashProps> = ({ connectedAddress, akashPrice, onTotalValueChange }) => {
-  const [akashBalance, setAkashBalance] = useState<number | null>(null);
+const DashboardCelestia: React.FC<DashboardCelestiaProps> = ({ connectedAddress, tiaPrice, onTotalValueChange }) => {
+  const [tiaBalance, setTiaBalance] = useState<number | null>(null);
   const [stakedBalance, setStakedBalance] = useState<number | null>(null);
   const [unclaimedRewards, setUnclaimedRewards] = useState<number | null>(null);
   const [claimStatus, setClaimStatus] = useState("");
+  const [totalValue, setTotalValue] = useState<number>(0);
 
   useEffect(() => {
-    if (connectedAddress && akashPrice !== null) {
-      enableAkashChain();
+    if (connectedAddress && tiaPrice !== null) {
+      enableCelestiaChain();
       fetchBalancesAndRewards();
     }
-  }, [connectedAddress, akashPrice]);
+  }, [connectedAddress, tiaPrice]);
 
   useEffect(() => {
-    if (akashPrice !== null && akashBalance !== null && stakedBalance !== null && unclaimedRewards !== null) {
-      const totalValue = calculateTotalValue(akashBalance, stakedBalance, unclaimedRewards, akashPrice);
+    if (tiaPrice !== null && tiaBalance !== null && stakedBalance !== null && unclaimedRewards !== null) {
+      const totalValue = calculateTotalValue(tiaBalance, stakedBalance, unclaimedRewards, tiaPrice);
+      setTotalValue(totalValue);
       onTotalValueChange(totalValue);
     }
-  }, [akashBalance, stakedBalance, unclaimedRewards, akashPrice]);
+  }, [tiaBalance, stakedBalance, unclaimedRewards, tiaPrice]);
 
-  // Enable the Akash chain in Keplr
-  async function enableAkashChain() {
+  const enableCelestiaChain = async () => {
     if (!window.keplr) {
       alert("Please install Keplr extension");
       return;
     }
     try {
-      await window.keplr.enable(AKASH.chainId);
+      await window.keplr.enable(CELESTIA.chainId);
     } catch (err) {
-      console.error("Failed to enable Akash chain:", err);
+      console.error("Failed to enable Celestia chain:", err);
     }
-  }
+  };
 
-  // Fetch Balances / Rewards
   const fetchBalancesAndRewards = async () => {
     if (!connectedAddress) return;
 
     try {
-      const [akashBalance, stakedBalance, unclaimedRewards] = await Promise.all([
-        fetchAkashBalance(connectedAddress),
+      const [tiaBalance, stakedBalance, unclaimedRewards] = await Promise.all([
+        fetchTiaBalance(connectedAddress),
         fetchStakedBalance(connectedAddress),
         fetchUnclaimedRewards(connectedAddress),
       ]);
 
-      setAkashBalance(akashBalance);
+      setTiaBalance(tiaBalance);
       setStakedBalance(stakedBalance);
       setUnclaimedRewards(unclaimedRewards);
     } catch (err) {
@@ -66,22 +66,22 @@ const DashboardAkash: React.FC<DashboardAkashProps> = ({ connectedAddress, akash
     }
   };
 
-  async function fetchAkashBalance(address: string) {
+  async function fetchTiaBalance(address: string) {
     try {
-      const url = `${AKASH.restEndpoint}/cosmos/bank/v1beta1/balances/${address}`;
+      const url = `${CELESTIA.restEndpoint}/cosmos/bank/v1beta1/balances/${address}`;
       const res = await fetch(url);
       const data = await res.json();
-      const akash = data.balances?.find((coin: any) => coin.denom === "uakt");
-      return akash ? Number(akash.amount) / 1e6 : 0;
+      const tia = data.balances?.find((coin: any) => coin.denom === "utia");
+      return tia ? Number(tia.amount) / 1e6 : 0;
     } catch (err) {
-      console.error("Failed to fetch akash balance:", err);
+      console.error("Failed to fetch TIA balance:", err);
       return 0;
     }
   }
 
   async function fetchStakedBalance(address: string) {
     try {
-      const url = `${AKASH.restEndpoint}/cosmos/staking/v1beta1/delegations/${address}`;
+      const url = `${CELESTIA.restEndpoint}/cosmos/staking/v1beta1/delegations/${address}`;
       const res = await fetch(url);
       const data = await res.json();
       const delegations = data.delegation_responses || [];
@@ -98,10 +98,10 @@ const DashboardAkash: React.FC<DashboardAkashProps> = ({ connectedAddress, akash
 
   async function fetchUnclaimedRewards(address: string) {
     try {
-      const url = `${AKASH.restEndpoint}/cosmos/distribution/v1beta1/delegators/${address}/rewards`;
+      const url = `${CELESTIA.restEndpoint}/cosmos/distribution/v1beta1/delegators/${address}/rewards`;
       const res = await fetch(url);
       const data = await res.json();
-      const totalObj = data.total?.find((coin: any) => coin.denom === "uakt");
+      const totalObj = data.total?.find((coin: any) => coin.denom === "utia");
       return totalObj ? Number(totalObj.amount) / 1e6 : 0;
     } catch (err) {
       console.error("Failed to fetch unclaimed rewards:", err);
@@ -109,10 +109,13 @@ const DashboardAkash: React.FC<DashboardAkashProps> = ({ connectedAddress, akash
     }
   }
 
-  // Dynamic retrieval of validator addresses for claiming
-  async function fetchValidatorAddresses(delegatorAddress: string): Promise<string[]> {
+  const calculateTotalValue = (tiaBalance: number, stakedBalance: number, unclaimedRewards: number, tiaPrice: number) => {
+    return (tiaBalance + stakedBalance + unclaimedRewards) * tiaPrice;
+  };
+
+  const fetchValidatorAddresses = async (delegatorAddress: string): Promise<string[]> => {
     try {
-      const url = `${AKASH.restEndpoint}/cosmos/staking/v1beta1/delegations/${delegatorAddress}`;
+      const url = `${CELESTIA.restEndpoint}/cosmos/staking/v1beta1/delegations/${delegatorAddress}`;
       const res = await fetch(url);
       const data = await res.json();
       const delegations = data.delegation_responses || [];
@@ -121,12 +124,11 @@ const DashboardAkash: React.FC<DashboardAkashProps> = ({ connectedAddress, akash
       console.error("Failed to fetch validator addresses:", err);
       return [];
     }
-  }
+  };
 
-  // Claim Rewards
-  async function handleClaimRewards() {
+  const handleClaimRewards = async () => {
     if (!connectedAddress) {
-      setClaimStatus("No wallet connected");
+      setClaimStatus("No connected address");
       return;
     }
     if (!window.keplr) {
@@ -135,20 +137,21 @@ const DashboardAkash: React.FC<DashboardAkashProps> = ({ connectedAddress, akash
     }
 
     try {
-      await window.keplr.enable(AKASH.chainId);
-      const offlineSigner = window.getOfflineSigner!(AKASH.chainId);
+      await window.keplr.enable(CELESTIA.chainId);
+      const offlineSigner = window.getOfflineSigner!(CELESTIA.chainId);
       const client = await SigningStargateClient.connectWithSigner(
-        AKASH.rpcEndpoint,
+        CELESTIA.rpcEndpoint,
         offlineSigner
       );
 
-      const validators = await fetchValidatorAddresses(connectedAddress);
-      if (validators.length === 0) {
+      const validatorAddresses = await fetchValidatorAddresses(connectedAddress);
+
+      if (validatorAddresses.length === 0) {
         setClaimStatus("No delegations found");
         return;
       }
 
-      const msgs = validators.map(
+      const msgs = validatorAddresses.map(
         (valAddr: string): MsgWithdrawDelegatorRewardEncodeObject => ({
           typeUrl: "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
           value: {
@@ -158,18 +161,12 @@ const DashboardAkash: React.FC<DashboardAkashProps> = ({ connectedAddress, akash
         })
       );
 
-      // Adjust fee for your chain
       const fee = {
-        amount: [{ denom: "uakt", amount: "1000000" }], // 2,000,000 uakt = 2.0 akash as fee example
-        gas: "1000000",
+        amount: [{ denom: "utia", amount: "100000" }], // Adjust the fee amount if necessary
+        gas: "200000", // Adjust the gas amount if necessary
       };
 
-      const result = await client.signAndBroadcast(
-        connectedAddress,
-        msgs,
-        fee,
-        "Claiming rewards"
-      );
+      const result = await client.signAndBroadcast(connectedAddress, msgs, fee, "Claiming rewards");
 
       if (result.code === 0) {
         setClaimStatus("Rewards claimed successfully");
@@ -180,49 +177,24 @@ const DashboardAkash: React.FC<DashboardAkashProps> = ({ connectedAddress, akash
       console.error(err);
       setClaimStatus("Failed to claim rewards");
     }
-  }
-
-  const calculateTotalValue = (akashBalance: number, stakedBalance: number, unclaimedRewards: number, akashPrice: number): number => {
-    const total = akashBalance + stakedBalance + unclaimedRewards;
-    return total * akashPrice;
   };
 
-  // UI display
-  const totalValue =
-    akashBalance !== null &&
-    stakedBalance !== null &&
-    unclaimedRewards !== null &&
-    akashPrice !== null
-      ? ((akashBalance + stakedBalance + unclaimedRewards) * akashPrice).toFixed(2)
-      : "Loading...";
-
-  const liquidValue = akashBalance !== null && akashPrice !== null 
-  ? (akashBalance * akashPrice).toFixed(2) 
-  : "Loading...";
-
-  const stakedValue = stakedBalance !== null && akashPrice !== null 
-  ? (stakedBalance * akashPrice).toFixed(2) 
-  : "Loading...";
-
-  const rewardsValue = unclaimedRewards !== null && akashPrice !== null 
-  ? (unclaimedRewards * akashPrice).toFixed(2) 
-  : "Loading...";
-
-  const truncateAddress = (addr: string) =>
-    `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+  const truncateAddress = (addr: string) => {
+    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+  };
 
   return (
     <section>
       <div className="pb-12 md:pb-20"></div>
       <div className="relative flex h-full flex-col rounded-2xl bg-gradient-to-br from-gray-900/50 via-gray-800/25 to-gray-900/50 p-5 backdrop-blur-sm before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,theme(colors.gray.800),theme(colors.gray.700),theme(colors.gray.800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)]">
         <div className="relative mb-4 border-b pb-5 [border-image:linear-gradient(to_right,transparent,theme(colors.slate.400/.25),transparent)1]">
-          <div className="mb-2 font-nacelle text-[1rem] text-gray-200">Akash Network</div>
+          <div className="mb-2 font-nacelle text-[1rem] text-gray-200">Celestia</div>
           <div className="mb-1.5 flex items-baseline font-nacelle">
             <span className="text-2xl text-indigo-200/65">$</span>
-            <span className="text-4xl font-semibold tabular-nums text-gray-200">{totalValue}</span>
+            <span className="text-4xl font-semibold tabular-nums text-gray-200">{totalValue.toFixed(2)}</span>
           </div>
           <div className="mb-4 grow text-xs text-indigo-200/65">
-            Current akash price: ${akashPrice !== null ? akashPrice.toFixed(2) : "Loading..."}
+            Current TIA price: ${tiaPrice !== null && tiaPrice !== undefined ? tiaPrice.toFixed(2) : "Loading..."}
           </div>
           <button
             className="btn-sm relative w-full bg-gradient-to-b from-gray-800 to-gray-800/60 bg-[length:100%_100%] bg-[bottom] text-gray-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,theme(colors.gray.800),theme(colors.gray.700),theme(colors.gray.800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:bg-[length:100%_150%]"
@@ -243,10 +215,10 @@ const DashboardAkash: React.FC<DashboardAkashProps> = ({ connectedAddress, akash
               <path d="M10.28 2.28L3.989 8.575 1.695 6.28A1 1 0 00.28 7.695l3 3a1 1 0 001.414 0l7-7A1 1 0 0010.28 2.28z" />
             </svg>
             <span>
-              Balance: {akashBalance !== null ? akashBalance.toFixed(2) : "Loading..."}
+              Balance: {tiaBalance !== null ? tiaBalance.toFixed(2) : "Loading..."}
               <span className="bg-gradient-to-r from-indigo-500 to-indigo-200 bg-clip-text text-transparent text-l font-bold">
                 {" "}
-                ${liquidValue}
+                ${tiaBalance !== null && tiaPrice !== null ? (tiaBalance * tiaPrice).toFixed(2) : "Loading..."}
               </span>{" "}
             </span>
           </li>
@@ -261,7 +233,7 @@ const DashboardAkash: React.FC<DashboardAkashProps> = ({ connectedAddress, akash
             <span>
               Staked: {stakedBalance !== null ? stakedBalance.toFixed(2) : "Loading..."}{" "}
               <span className="bg-gradient-to-r from-indigo-500 to-indigo-200 bg-clip-text text-transparent text-l font-bold">
-                ${stakedValue}
+                ${stakedBalance !== null && tiaPrice !== null ? (stakedBalance * tiaPrice).toFixed(2) : "Loading..."}
               </span>{" "}
             </span>
           </li>
@@ -276,7 +248,7 @@ const DashboardAkash: React.FC<DashboardAkashProps> = ({ connectedAddress, akash
             <span>
               Rewards: {unclaimedRewards !== null ? unclaimedRewards.toFixed(2) : "Loading..."}{" "}
               <span className="bg-gradient-to-r from-indigo-500 to-indigo-200 bg-clip-text text-transparent text-l font-bold">
-                ${rewardsValue}
+                ${unclaimedRewards !== null && tiaPrice !== null ? (unclaimedRewards * tiaPrice).toFixed(2) : "Loading..."}
               </span>{" "}
             </span>
           </li>
@@ -293,4 +265,4 @@ const DashboardAkash: React.FC<DashboardAkashProps> = ({ connectedAddress, akash
   );
 };
 
-export default DashboardAkash;
+export default DashboardCelestia;

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { COSMOS_HUB, OSMOSIS, AKASH, REGEN, CELESTIA, OMNIFLIX, INJECTIVE, STRIDE, } from "@/components/chains"; // Adjust the import path as needed
+import { COSMOS_HUB, OSMOSIS, AKASH, REGEN, CELESTIA, OMNIFLIX, INJECTIVE, STRIDE, } from "@/components/toknwrks/chains"; // Adjust the import path as needed
 
 export interface WalletContextProps {
   wallet: string | null;

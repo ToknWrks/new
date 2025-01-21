@@ -4,7 +4,7 @@ import { Inter } from "next/font/google";
 import localFont from "next/font/local";
 
 import Header from "@/components/ui/header";
-import { WalletProvider } from "@/components/WalletContext";
+import { WalletProvider } from "@/components/toknwrks/WalletContext";
 
 const inter = Inter({
   subsets: ["latin"],

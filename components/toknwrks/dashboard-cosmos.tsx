@@ -4,61 +4,61 @@ import {
   SigningStargateClient,
   MsgWithdrawDelegatorRewardEncodeObject,
 } from "@cosmjs/stargate";
-import { CELESTIA } from "@/components/chains";
+import { COSMOS_HUB } from "@/components//toknwrks/chains";
 
 import Spotlight from "@/components/spotlight";
 
-interface DashboardCelestiaProps {
+interface DashboardCosmosProps {
   connectedAddress: string;
-  tiaPrice: number | null;
+  cosmosPrice: number | null;
   onTotalValueChange: (value: number) => void;
 }
 
-const DashboardCelestia: React.FC<DashboardCelestiaProps> = ({ connectedAddress, tiaPrice, onTotalValueChange }) => {
-  const [tiaBalance, setTiaBalance] = useState<number | null>(null);
+const DashboardCosmos: React.FC<DashboardCosmosProps> = ({ connectedAddress, cosmosPrice, onTotalValueChange }) => {
+  const [atomBalance, setAtomBalance] = useState<number | null>(null);
   const [stakedBalance, setStakedBalance] = useState<number | null>(null);
   const [unclaimedRewards, setUnclaimedRewards] = useState<number | null>(null);
   const [claimStatus, setClaimStatus] = useState("");
-  const [totalValue, setTotalValue] = useState<number>(0);
 
   useEffect(() => {
-    if (connectedAddress && tiaPrice !== null) {
-      enableCelestiaChain();
+    if (connectedAddress && cosmosPrice !== null) {
+      enableAtomChain();
       fetchBalancesAndRewards();
     }
-  }, [connectedAddress, tiaPrice]);
+  }, [connectedAddress, cosmosPrice]);
 
   useEffect(() => {
-    if (tiaPrice !== null && tiaBalance !== null && stakedBalance !== null && unclaimedRewards !== null) {
-      const totalValue = calculateTotalValue(tiaBalance, stakedBalance, unclaimedRewards, tiaPrice);
-      setTotalValue(totalValue);
+    if (cosmosPrice !== null && atomBalance !== null && stakedBalance !== null && unclaimedRewards !== null) {
+      const totalValue = calculateTotalValue(atomBalance, stakedBalance, unclaimedRewards, cosmosPrice);
       onTotalValueChange(totalValue);
     }
-  }, [tiaBalance, stakedBalance, unclaimedRewards, tiaPrice]);
+  }, [atomBalance, stakedBalance, unclaimedRewards, cosmosPrice]);
 
-  const enableCelestiaChain = async () => {
+  // Enable the Atom chain in Keplr
+  async function enableAtomChain() {
     if (!window.keplr) {
       alert("Please install Keplr extension");
       return;
     }
     try {
-      await window.keplr.enable(CELESTIA.chainId);
+      await window.keplr.enable(COSMOS_HUB.chainId);
     } catch (err) {
-      console.error("Failed to enable Celestia chain:", err);
+      console.error("Failed to enable Atom chain:", err);
     }
-  };
+  }
 
+  // Fetch Balances / Rewards
   const fetchBalancesAndRewards = async () => {
     if (!connectedAddress) return;
 
     try {
-      const [tiaBalance, stakedBalance, unclaimedRewards] = await Promise.all([
-        fetchTiaBalance(connectedAddress),
+      const [atomBalance, stakedBalance, unclaimedRewards] = await Promise.all([
+        fetchAtomBalance(connectedAddress),
         fetchStakedBalance(connectedAddress),
         fetchUnclaimedRewards(connectedAddress),
       ]);
 
-      setTiaBalance(tiaBalance);
+      setAtomBalance(atomBalance);
       setStakedBalance(stakedBalance);
       setUnclaimedRewards(unclaimedRewards);
     } catch (err) {
@@ -66,22 +66,22 @@ const DashboardCelestia: React.FC<DashboardCelestiaProps> = ({ connectedAddress,
     }
   };
 
-  async function fetchTiaBalance(address: string) {
+  async function fetchAtomBalance(address: string) {
     try {
-      const url = `${CELESTIA.restEndpoint}/cosmos/bank/v1beta1/balances/${address}`;
+      const url = `${COSMOS_HUB.restEndpoint}/cosmos/bank/v1beta1/balances/${address}`;
       const res = await fetch(url);
       const data = await res.json();
-      const tia = data.balances?.find((coin: any) => coin.denom === "utia");
-      return tia ? Number(tia.amount) / 1e6 : 0;
+      const atom = data.balances?.find((coin: any) => coin.denom === "uatom");
+      return atom ? Number(atom.amount) / 1e6 : 0;
     } catch (err) {
-      console.error("Failed to fetch TIA balance:", err);
+      console.error("Failed to fetch Atom balance:", err);
       return 0;
     }
   }
 
   async function fetchStakedBalance(address: string) {
     try {
-      const url = `${CELESTIA.restEndpoint}/cosmos/staking/v1beta1/delegations/${address}`;
+      const url = `${COSMOS_HUB.restEndpoint}/cosmos/staking/v1beta1/delegations/${address}`;
       const res = await fetch(url);
       const data = await res.json();
       const delegations = data.delegation_responses || [];
@@ -98,10 +98,10 @@ const DashboardCelestia: React.FC<DashboardCelestiaProps> = ({ connectedAddress,
 
   async function fetchUnclaimedRewards(address: string) {
     try {
-      const url = `${CELESTIA.restEndpoint}/cosmos/distribution/v1beta1/delegators/${address}/rewards`;
+      const url = `${COSMOS_HUB.restEndpoint}/cosmos/distribution/v1beta1/delegators/${address}/rewards`;
       const res = await fetch(url);
       const data = await res.json();
-      const totalObj = data.total?.find((coin: any) => coin.denom === "utia");
+      const totalObj = data.total?.find((coin: any) => coin.denom === "uatom");
       return totalObj ? Number(totalObj.amount) / 1e6 : 0;
     } catch (err) {
       console.error("Failed to fetch unclaimed rewards:", err);
@@ -109,13 +109,10 @@ const DashboardCelestia: React.FC<DashboardCelestiaProps> = ({ connectedAddress,
     }
   }
 
-  const calculateTotalValue = (tiaBalance: number, stakedBalance: number, unclaimedRewards: number, tiaPrice: number) => {
-    return (tiaBalance + stakedBalance + unclaimedRewards) * tiaPrice;
-  };
-
-  const fetchValidatorAddresses = async (delegatorAddress: string): Promise<string[]> => {
+  // Dynamic retrieval of validator addresses for claiming
+  async function fetchValidatorAddresses(delegatorAddress: string): Promise<string[]> {
     try {
-      const url = `${CELESTIA.restEndpoint}/cosmos/staking/v1beta1/delegations/${delegatorAddress}`;
+      const url = `${COSMOS_HUB.restEndpoint}/cosmos/staking/v1beta1/delegations/${delegatorAddress}`;
       const res = await fetch(url);
       const data = await res.json();
       const delegations = data.delegation_responses || [];
@@ -124,11 +121,12 @@ const DashboardCelestia: React.FC<DashboardCelestiaProps> = ({ connectedAddress,
       console.error("Failed to fetch validator addresses:", err);
       return [];
     }
-  };
+  }
 
-  const handleClaimRewards = async () => {
+  // Claim Rewards
+  async function handleClaimRewards() {
     if (!connectedAddress) {
-      setClaimStatus("No connected address");
+      setClaimStatus("No wallet connected");
       return;
     }
     if (!window.keplr) {
@@ -137,21 +135,20 @@ const DashboardCelestia: React.FC<DashboardCelestiaProps> = ({ connectedAddress,
     }
 
     try {
-      await window.keplr.enable(CELESTIA.chainId);
-      const offlineSigner = window.getOfflineSigner!(CELESTIA.chainId);
+      await window.keplr.enable(COSMOS_HUB.chainId);
+      const offlineSigner = window.getOfflineSigner!(COSMOS_HUB.chainId);
       const client = await SigningStargateClient.connectWithSigner(
-        CELESTIA.rpcEndpoint,
+        COSMOS_HUB.rpcEndpoint,
         offlineSigner
       );
 
-      const validatorAddresses = await fetchValidatorAddresses(connectedAddress);
-
-      if (validatorAddresses.length === 0) {
+      const validators = await fetchValidatorAddresses(connectedAddress);
+      if (validators.length === 0) {
         setClaimStatus("No delegations found");
         return;
       }
 
-      const msgs = validatorAddresses.map(
+      const msgs = validators.map(
         (valAddr: string): MsgWithdrawDelegatorRewardEncodeObject => ({
           typeUrl: "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
           value: {
@@ -161,12 +158,18 @@ const DashboardCelestia: React.FC<DashboardCelestiaProps> = ({ connectedAddress,
         })
       );
 
+      // Adjust fee for your chain
       const fee = {
-        amount: [{ denom: "utia", amount: "100000" }], // Adjust the fee amount if necessary
-        gas: "200000", // Adjust the gas amount if necessary
+        amount: [{ denom: "uatom", amount: "100000" }], // 2,000,000 uatom = 2.0 atom as fee example
+        gas: "2000000",
       };
 
-      const result = await client.signAndBroadcast(connectedAddress, msgs, fee, "Claiming rewards");
+      const result = await client.signAndBroadcast(
+        connectedAddress,
+        msgs,
+        fee,
+        "Claiming rewards"
+      );
 
       if (result.code === 0) {
         setClaimStatus("Rewards claimed successfully");
@@ -177,24 +180,49 @@ const DashboardCelestia: React.FC<DashboardCelestiaProps> = ({ connectedAddress,
       console.error(err);
       setClaimStatus("Failed to claim rewards");
     }
+  }
+
+  const calculateTotalValue = (atomBalance: number, stakedBalance: number, unclaimedRewards: number, cosmosPrice: number): number => {
+    const total = atomBalance + stakedBalance + unclaimedRewards;
+    return cosmosPrice !== null ? total * cosmosPrice : 0;
   };
 
-  const truncateAddress = (addr: string) => {
-    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
-  };
+  // UI display
+  const totalValue =
+    atomBalance !== null &&
+    stakedBalance !== null &&
+    unclaimedRewards !== null &&
+    cosmosPrice !== null
+      ? ((atomBalance + stakedBalance + unclaimedRewards) * cosmosPrice).toFixed(2)
+      : "Loading...";
+
+  const liquidValue = atomBalance !== null && cosmosPrice !== null 
+  ? (atomBalance * cosmosPrice).toFixed(2) 
+  : "Loading...";
+
+  const stakedValue = stakedBalance !== null && cosmosPrice !== null 
+  ? (stakedBalance * cosmosPrice).toFixed(2) 
+  : "Loading...";
+
+  const rewardsValue = unclaimedRewards !== null && cosmosPrice !== null 
+  ? (unclaimedRewards * cosmosPrice).toFixed(2) 
+  : "Loading...";
+
+  const truncateAddress = (addr: string) =>
+    `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 
   return (
     <section>
       <div className="pb-12 md:pb-20"></div>
       <div className="relative flex h-full flex-col rounded-2xl bg-gradient-to-br from-gray-900/50 via-gray-800/25 to-gray-900/50 p-5 backdrop-blur-sm before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,theme(colors.gray.800),theme(colors.gray.700),theme(colors.gray.800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)]">
         <div className="relative mb-4 border-b pb-5 [border-image:linear-gradient(to_right,transparent,theme(colors.slate.400/.25),transparent)1]">
-          <div className="mb-2 font-nacelle text-[1rem] text-gray-200">Celestia</div>
+          <div className="mb-2 font-nacelle text-[1rem] text-gray-200">Cosmos Hub</div>
           <div className="mb-1.5 flex items-baseline font-nacelle">
             <span className="text-2xl text-indigo-200/65">$</span>
-            <span className="text-4xl font-semibold tabular-nums text-gray-200">{totalValue.toFixed(2)}</span>
+            <span className="text-4xl font-semibold tabular-nums text-gray-200">{totalValue}</span>
           </div>
           <div className="mb-4 grow text-xs text-indigo-200/65">
-            Current TIA price: ${tiaPrice !== null && tiaPrice !== undefined ? tiaPrice.toFixed(2) : "Loading..."}
+            Current Atom price: ${cosmosPrice !== null ? cosmosPrice.toFixed(2) : "Loading..."}
           </div>
           <button
             className="btn-sm relative w-full bg-gradient-to-b from-gray-800 to-gray-800/60 bg-[length:100%_100%] bg-[bottom] text-gray-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,theme(colors.gray.800),theme(colors.gray.700),theme(colors.gray.800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:bg-[length:100%_150%]"
@@ -215,10 +243,10 @@ const DashboardCelestia: React.FC<DashboardCelestiaProps> = ({ connectedAddress,
               <path d="M10.28 2.28L3.989 8.575 1.695 6.28A1 1 0 00.28 7.695l3 3a1 1 0 001.414 0l7-7A1 1 0 0010.28 2.28z" />
             </svg>
             <span>
-              Balance: {tiaBalance !== null ? tiaBalance.toFixed(2) : "Loading..."}
+              Balance: {atomBalance !== null ? atomBalance.toFixed(2) : "Loading..."}
               <span className="bg-gradient-to-r from-indigo-500 to-indigo-200 bg-clip-text text-transparent text-l font-bold">
                 {" "}
-                ${tiaBalance !== null && tiaPrice !== null ? (tiaBalance * tiaPrice).toFixed(2) : "Loading..."}
+                ${liquidValue}
               </span>{" "}
             </span>
           </li>
@@ -233,7 +261,7 @@ const DashboardCelestia: React.FC<DashboardCelestiaProps> = ({ connectedAddress,
             <span>
               Staked: {stakedBalance !== null ? stakedBalance.toFixed(2) : "Loading..."}{" "}
               <span className="bg-gradient-to-r from-indigo-500 to-indigo-200 bg-clip-text text-transparent text-l font-bold">
-                ${stakedBalance !== null && tiaPrice !== null ? (stakedBalance * tiaPrice).toFixed(2) : "Loading..."}
+                ${stakedValue}
               </span>{" "}
             </span>
           </li>
@@ -246,9 +274,9 @@ const DashboardCelestia: React.FC<DashboardCelestiaProps> = ({ connectedAddress,
               <path d="M10.28 2.28L3.989 8.575 1.695 6.28A1 1 0 00.28 7.695l3 3a1 1 0 001.414 0l7-7A1 1 0 0010.28 2.28z" />
             </svg>
             <span>
-            Rewards: {unclaimedRewards !== null ? unclaimedRewards.toFixed(2) : "Loading..."}{" "}
+              Rewards: {unclaimedRewards !== null ? unclaimedRewards.toFixed(2) : "Loading..."}{" "}
               <span className="bg-gradient-to-r from-indigo-500 to-indigo-200 bg-clip-text text-transparent text-l font-bold">
-                ${unclaimedRewards !== null && tiaPrice !== null ? (unclaimedRewards * tiaPrice).toFixed(2) : "Loading..."}
+                ${rewardsValue}
               </span>{" "}
             </span>
           </li>
@@ -265,4 +293,4 @@ const DashboardCelestia: React.FC<DashboardCelestiaProps> = ({ connectedAddress,
   );
 };
 
-export default DashboardCelestia;
+export default DashboardCosmos;
