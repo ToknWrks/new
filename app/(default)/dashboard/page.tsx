@@ -44,17 +44,12 @@ const Page = () => {
 
       if (savedChains.includes("Cosmos Hub")) {
         fetchFunctions.push(limit(async () => {
-          const cosmosUrl = "https://api.mintscan.io/v1/assets/cosmos";
-          const apiKey = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpZCI6ODYyLCJpYXQiOjE3MzY1MjM3ODd9.BHLk1Asla3C9Gj9XCKEn9wOVBSO8rbPk3GaVZ3IeMLnUXl8IimMaNQN-9ZNybx4kv0Twd_JDWwFn4888fgwGHg"; // Replace with your actual API key
+          const cosmosUrl = "https://api.coingecko.com/api/v3/simple/price?ids=cosmos&vs_currencies=usd";
           try {
-             const cosmosRes = await fetch(cosmosUrl, {
-              headers: {
-                "Authorization": `Bearer ${apiKey}`,
-              },
-            });
+            const cosmosRes = await fetch(cosmosUrl);
             if (!cosmosRes.ok) throw new Error("Failed to fetch Cosmos price");
             const cosmosData = await cosmosRes.json();
-            setCosmosPrice(cosmosData.price);
+            setCosmosPrice(cosmosData.cosmos.usd);
             console.log("Cosmos Price:", cosmosData);
           } catch (error) {
             console.error("Error fetching Cosmos price:", error);
