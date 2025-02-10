@@ -1,104 +1,124 @@
-export const metadata = {
-  title: "Sign Up - Open PRO",
-  description: "Page description",
-};
-
-import Link from "next/link";
+"use client";
+import { useState } from 'react';
+import Link from 'next/link';
+import Head from 'next/head';
+import { signUpMetadata as metadata } from '@/components/toknwrks/metadata'; // Adjust the import path as needed
 
 export default function SignUp() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log('Form submitted');
+
+    const res = await fetch('/api/signup', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name, email, password }),
+    });
+
+    if (res.ok) {
+      setSuccess('Account created successfully!');
+      setError('');
+      console.log('Account created successfully');
+    } else {
+      const data = await res.json();
+      setError(data.error || 'Error creating account');
+      setSuccess('');
+      console.error('Error creating account:', data.error);
+    }
+  };
+
   return (
-    <section>
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="py-12 md:py-20">
-          {/* Section header */}
-          <div className="pb-12 text-center">
-            <h1 className="animate-[gradient_6s_linear_infinite] bg-[linear-gradient(to_right,theme(colors.gray.200),theme(colors.indigo.200),theme(colors.gray.50),theme(colors.indigo.300),theme(colors.gray.200))] bg-[length:200%_auto] bg-clip-text font-nacelle text-3xl font-semibold text-transparent md:text-4xl">
-              Create an account
-            </h1>
-          </div>
-          {/* Contact form */}
-          <form className="mx-auto max-w-[400px]">
-            <div className="space-y-5">
-              <div>
-                <label
-                  className="mb-1 block text-sm font-medium text-indigo-200/65"
-                  htmlFor="name"
-                >
-                  Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="name"
-                  type="text"
-                  className="form-input w-full"
-                  placeholder="Your full name"
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  className="mb-1 block text-sm font-medium text-indigo-200/65"
-                  htmlFor="name"
-                >
-                  Company Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="company"
-                  type="text"
-                  className="form-input w-full"
-                  placeholder="Your company name"
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  className="mb-1 block text-sm font-medium text-indigo-200/65"
-                  htmlFor="email"
-                >
-                  Work Email <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  className="form-input w-full"
-                  placeholder="Your work email"
-                />
-              </div>
-              <div>
-                <label
-                  className="block text-sm font-medium text-indigo-200/65"
-                  htmlFor="password"
-                >
-                  Password <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="password"
-                  type="password"
-                  className="form-input w-full"
-                  placeholder="Password (at least 10 characters)"
-                />
-              </div>
+    <>
+      <Head>
+        <title>{metadata.title}</title>
+        <meta name="description" content={metadata.description} />
+      </Head>
+      <section>
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="py-12 md:py-20">
+            {/* Section header */}
+            <div className="pb-12 text-center">
+              <h1 className="animate-[gradient_6s_linear_infinite] bg-[linear-gradient(to_right,theme(colors.gray.200),theme(colors.indigo.200),theme(colors.gray.50),theme(colors.indigo.300),theme(colors.gray.200))] bg-[length:200%_auto] bg-clip-text font-nacelle text-3xl font-semibold text-transparent md:text-4xl">
+                Create an account
+              </h1>
             </div>
-            <div className="mt-6 space-y-5">
-              <button className="btn w-full bg-gradient-to-t from-indigo-600 to-indigo-500 bg-[length:100%_100%] bg-[bottom] text-white shadow-[inset_0px_1px_0px_0px_theme(colors.white/.16)] hover:bg-[length:100%_150%]">
-                Register
-              </button>
-              <div className="flex items-center gap-3 text-center text-sm italic text-gray-600 before:h-px before:flex-1 before:bg-gradient-to-r before:from-transparent before:via-gray-400/25 after:h-px after:flex-1 after:bg-gradient-to-r after:from-transparent after:via-gray-400/25">
-                or
+            {/* Contact form */}
+            <form className="mx-auto max-w-[400px]" onSubmit={handleSubmit}>
+              <div className="space-y-5">
+                <div>
+                  <label
+                    className="mb-1 block text-sm font-medium text-indigo-200/65"
+                    htmlFor="name"
+                  >
+                    Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="form-input w-full bg-gray-800 text-white border-gray-600 focus:border-indigo-500 focus:ring-indigo-500"
+                    placeholder="Your name"
+                    required
+                  />
+                </div>
+                <div>
+                  <label
+                    className="mb-1 block text-sm font-medium text-indigo-200/65"
+                    htmlFor="email"
+                  >
+                    Email <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="form-input w-full bg-gray-800 text-white border-gray-600 focus:border-indigo-500 focus:ring-indigo-500"
+                    placeholder="Your email"
+                    required
+                  />
+                </div>
+                <div>
+                  <label
+                    className="mb-1 block text-sm font-medium text-indigo-200/65"
+                    htmlFor="password"
+                  >
+                    Password <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="form-input w-full bg-gray-800 text-white border-gray-600 focus:border-indigo-500 focus:ring-indigo-500"
+                    placeholder="Your password"
+                    required
+                  />
+                </div>
+                <div>
+                  <button
+                    type="submit"
+                    className="w-full rounded-md bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  >
+                    Sign Up
+                  </button>
+                </div>
+                {error && <div className="text-red-500">{error}</div>}
+                {success && <div className="text-green-500">{success}</div>}
               </div>
-              <button className="btn relative w-full bg-gradient-to-b from-gray-800 to-gray-800/60 bg-[length:100%_100%] bg-[bottom] text-gray-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,theme(colors.gray.800),theme(colors.gray.700),theme(colors.gray.800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:bg-[length:100%_150%]">
-                Sign In with Google
-              </button>
-            </div>
-          </form>
-          {/* Bottom link */}
-          <div className="mt-6 text-center text-sm text-indigo-200/65">
-            Already have an account?{" "}
-            <Link className="font-medium text-indigo-500" href="/signin">
-              Sign in
-            </Link>
+            </form>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }

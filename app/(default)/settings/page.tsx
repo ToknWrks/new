@@ -5,8 +5,19 @@ import FooterSeparator from "@/components/footer-separator";
 import Logo from "@/components/ui/logo";
 import { CHAINS } from "@/components/toknwrks/chains";
 import { useState, useEffect } from "react";
+import { useWallet } from "@/components/toknwrks/WalletContext";
 
-export default function SettingsPage() {
+const enableChain = async (chain: any, wallet: any) => {
+  try {
+    await wallet.enable(chain.chainId);
+    console.log(`Enabled chain: ${chain.chainName}`);
+  } catch (err) {
+    console.error(`Failed to enable chain ${chain.chainName}:`, err);
+  }
+};
+
+export default function SavedChains() {
+  const wallet = useWallet();
   const [savedChains, setSavedChains] = useState<string[]>(["Cosmos Hub"]); // Cosmos Hub is required
 
   useEffect(() => {
@@ -16,10 +27,18 @@ export default function SettingsPage() {
     }
   }, []);
 
-  const handleCheckboxChange = (chainName: string) => {
+  const handleCheckboxChange = async (chainName: string) => {
     const updatedChains = savedChains.includes(chainName)
       ? savedChains.filter((name) => name !== chainName)
       : [...savedChains, chainName];
+
+    if (!savedChains.includes(chainName)) {
+      const chain = CHAINS.find(chain => chain.chainName === chainName);
+      if (chain) {
+        await enableChain(chain, wallet);
+      }
+    }
+
     setSavedChains(updatedChains);
     localStorage.setItem("savedChains", JSON.stringify(updatedChains));
   };

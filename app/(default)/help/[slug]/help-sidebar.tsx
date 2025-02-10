@@ -12,12 +12,12 @@ export default function HelpSidebar() {
       href: "/help/frequently-asked-questions",
     },
     {
-      name: "What is Open PRO",
-      href: "/help/what-is-open-pro",
+      name: "What is ToknWrks",
+      href: "/help/what-is-toknwrks",
     },
     {
-      name: "Open PRO plan’s features",
-      href: "/help/open-pro-plans-features",
+      name: "To-Do List",
+      href: "/help/to-do-list",
     },
     {
       name: "Get started",

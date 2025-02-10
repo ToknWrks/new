@@ -1,27 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Logo from "./logo";
 import Dropdown from "@/components/dropdown";
 import MobileMenu from "./mobile-menu";
 import Modal from "@/components/Modal";
 import WalletConnection from "@/components/toknwrks/WalletConnection";
-import { useWallet } from "@/components/toknwrks/WalletContext";
-import DashboardSettings from "../toknwrks/dashboard-settings";
-
-declare global {
-  interface Window {
-    keplr: any;
-    leap: any;
-    getOfflineSigner: any;
-  }
-}
+import DashboardSettings from "../toknwrks/dashboardSettings";
 
 export default function Header() {
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
-  const { connectWallet } = useWallet();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Check if the user is logged in
+    const user = localStorage.getItem('user');
+    if (user) {
+      setIsLoggedIn(true);
+    }
+  }, []);
 
   const openWalletModal = () => setIsWalletModalOpen(true);
   const closeWalletModal = () => setIsWalletModalOpen(false);
@@ -29,6 +28,16 @@ export default function Header() {
   const openSettingsModal = () => setIsSettingsModalOpen(true);
   const closeSettingsModal = () => setIsSettingsModalOpen(false);
 
+  const handleLogout = () => {
+    // Handle logout logic
+    localStorage.removeItem('user');
+    setIsLoggedIn(false);
+    window.location.reload(); // Refresh the page to update the UI
+  };
+
+  const handleWalletConnect = () => {
+    console.log("Wallet connected in Header");
+  };
 
   return (
     <header className="z-30 mt-2 w-full md:mt-5">
@@ -45,10 +54,10 @@ export default function Header() {
             <ul className="flex grow flex-wrap items-center justify-center gap-4 text-sm lg:gap-8">
               <li>
                 <Link
-                  href="/pricing"
+                  href="/claim-rewards"
                   className="flex items-center px-2 py-1 text-gray-200 transition hover:text-indigo-500 lg:px-3"
                 >
-                  Pricing
+                  Claim Rewards
                 </Link>
               </li>
               <li>
@@ -61,10 +70,10 @@ export default function Header() {
               </li>
               <li>
                 <Link
-                  href="/blog"
+                  href="/claim-history"
                   className="flex items-center px-2 py-1 text-gray-200 transition hover:text-indigo-500 lg:px-3"
                 >
-                  Blog
+                  Claim History
                 </Link>
               </li>
               <li>
@@ -99,22 +108,34 @@ export default function Header() {
           </nav>
           {/* Desktop sign in links */}
           <ul className="flex flex-1 items-center justify-end gap-3">
-            <li>
-              <Link
-                href="/signin"
-                className="btn-sm relative bg-gradient-to-b from-gray-800 to-gray-800/60 bg-[length:100%_100%] bg-[bottom] py-[5px] text-gray-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,theme(colors.gray.800),theme(colors.gray.700),theme(colors.gray.800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:bg-[length:100%_150%]"
-              >
-                Sign In
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/signup"
-                className="btn-sm bg-gradient-to-t from-indigo-600 to-indigo-500 bg-[length:100%_100%] bg-[bottom] py-[5px] text-white shadow-[inset_0px_1px_0px_0px_theme(colors.white/.16)] hover:bg-[length:100%_150%]"
-              >
-                Register
-              </Link>
-            </li>
+            {isLoggedIn ? (
+              <>
+                <li>
+                  <button onClick={handleLogout} className="btn-sm relative bg-gradient-to-b from-gray-800 to-gray-800/60 bg-[length:100%_100%] bg-[bottom] py-[5px] text-gray-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,theme(colors.gray.800),theme(colors.gray.700),theme(colors.gray.800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:bg-[length:100%_150%]">
+                    Sign Out
+                  </button>
+                </li>
+              </>
+            ) : (
+              <>
+                <li>
+                  <Link
+                    href="/signin"
+                    className="btn-sm relative bg-gradient-to-b from-gray-800 to-gray-800/60 bg-[length:100%_100%] bg-[bottom] py-[5px] text-gray-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,theme(colors.gray.800),theme(colors.gray.700),theme(colors.gray.800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:bg-[length:100%_150%]"
+                  >
+                    Sign In
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/signup"
+                    className="btn-sm bg-gradient-to-t from-indigo-600 to-indigo-500 bg-[length:100%_100%] bg-[bottom] py-[5px] text-white shadow-[inset_0px_1px_0px_0px_theme(colors.white/.16)] hover:bg-[length:100%_150%]"
+                  >
+                    Register
+                  </Link>
+                </li>
+              </>
+            )}
             <li>
               <button
                 onClick={openWalletModal}
@@ -132,7 +153,7 @@ export default function Header() {
      {/* Wallet Modal */}
      {isWalletModalOpen && (
         <Modal isOpen={isWalletModalOpen} onClose={closeWalletModal}>
-          <WalletConnection onConnect={connectWallet} />
+          <WalletConnection onConnect={handleWalletConnect} />
         </Modal>
       )}
 

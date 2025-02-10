@@ -3,12 +3,24 @@
 import { useState, useRef, useEffect } from "react";
 import { Transition } from "@headlessui/react";
 import Link from "next/link";
+import Dropdown from "@/components/dropdown";
+import Modal from "@/components/Modal";
+import DashboardSettings from "../toknwrks/dashboardSettings"; // Assuming you have a DashboardSettings component
 
 export default function MobileMenu() {
   const [mobileNavOpen, setMobileNavOpen] = useState<boolean>(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   const trigger = useRef<HTMLButtonElement>(null);
   const mobileNav = useRef<HTMLDivElement>(null);
+
+  const openSettingsModal = () => {
+    setIsSettingsModalOpen(true);
+  };
+
+  const closeSettingsModal = () => {
+    setIsSettingsModalOpen(false);
+  };
 
   // close the mobile menu on click outside
   useEffect(() => {
@@ -140,25 +152,30 @@ export default function MobileMenu() {
             </li>
             <li>
               <Link
-                href="/contact"
+                href="/settings"
                 className="flex rounded-lg px-2 py-1.5 text-white hover:text-indigo-500"
                 onClick={() => setMobileNavOpen(false)}
               >
-                Contact
+                Settings: Chains
               </Link>
             </li>
             <li>
-              <Link
-                href="/404"
-                className="flex rounded-lg px-2 py-1.5 text-white hover:text-indigo-500"
-                onClick={() => setMobileNavOpen(false)}
+              <button
+                onClick={openSettingsModal}
+                className="flex rounded-lg px-2 py-1.5 text-sm text-white hover:text-indigo-500"
               >
-                404
-              </Link>
+                Settings: Tax & Swap
+              </button>
             </li>
           </ul>
         </Transition>
       </div>
+      {/* Settings Modal */}
+      {isSettingsModalOpen && (
+        <Modal isOpen={isSettingsModalOpen} onClose={closeSettingsModal}>
+          <DashboardSettings />
+        </Modal>
+      )}
     </div>
   );
 }
