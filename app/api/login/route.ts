@@ -41,3 +41,24 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Error logging in' }, { status: 500 });
   }
 }
+
+export async function GET(request: NextRequest) {
+  try {
+    const databaseUrl = process.env.DATABASE_URL;
+    if (!databaseUrl) {
+      throw new Error('DATABASE_URL is not defined');
+    }
+    const sql = neon(databaseUrl);
+
+    // Test database connection
+    const result = await sql`SELECT 1+1 AS result;`;
+    return NextResponse.json({ message: 'Database connection successful', result }, { status: 200 });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error connecting to database:', error.message, error.stack);
+    } else {
+      console.error('Error connecting to database:', error);
+    }
+    return NextResponse.json({ error: 'Error connecting to database' }, { status: 500 });
+  }
+}
