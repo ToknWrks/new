@@ -33,7 +33,11 @@ export async function POST(request: NextRequest) {
     const userInfo = { id: user.id, name: user.name, email: user.email };
     return NextResponse.json({ message: 'Login successful', user: userInfo }, { status: 200 });
   } catch (error) {
-    console.error('Error logging in:', error);
+    if (error instanceof Error) {
+      console.error('Error logging in:', error.message, error.stack);
+    } else {
+      console.error('Error logging in:', error);
+    }
     return NextResponse.json({ error: 'Error logging in' }, { status: 500 });
   }
 }
