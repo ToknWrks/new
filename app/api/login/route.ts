@@ -11,6 +11,7 @@ export async function POST(request: NextRequest) {
     const user = await getUserByEmail(email);
 
     if (!user) {
+      console.log('User not found');
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
@@ -19,11 +20,13 @@ export async function POST(request: NextRequest) {
     // Compare the password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
+      console.log('Invalid password');
       return NextResponse.json({ error: 'Invalid password' }, { status: 401 });
     }
 
     // Store user information in local storage
     const userInfo = { id: user.id, name: user.name, email: user.email };
+    console.log('Login successful:', userInfo);
     return NextResponse.json({ message: 'Login successful', user: userInfo }, { status: 200 });
   } catch (error) {
     if (error instanceof Error) {
