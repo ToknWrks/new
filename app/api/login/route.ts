@@ -1,30 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { neon } from '@neondatabase/serverless';
+import { getUserByEmail } from '@/user';
 
 export async function POST(request: NextRequest) {
   const { email, password } = await request.json();
 
   try {
-    const databaseUrl = process.env.DATABASE_URL;
-    if (!databaseUrl) {
-      throw new Error('DATABASE_URL is not defined');
-    }
-    const sql = neon(databaseUrl);
-
     console.log('Connecting to database...');
     // Find the user in the database
-    const users = await sql`
-      SELECT * FROM "User" WHERE email = ${email};
-    `;
+    const user = await getUserByEmail(email);
 
-    console.log('Users fetched:', users);
-
-    if (users.length === 0) {
+    if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const user = users[0];
+    console.log('User fetched:', user);
 
     // Compare the password
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -42,26 +32,5 @@ export async function POST(request: NextRequest) {
       console.error('Error logging in:', error);
     }
     return NextResponse.json({ error: 'Error logging in' }, { status: 500 });
-  }
-}
-
-export async function GET(request: NextRequest) {
-  try {
-    const databaseUrl = process.env.DATABASE_URL;
-    if (!databaseUrl) {
-      throw new Error('DATABASE_URL is not defined');
-    }
-    const sql = neon(databaseUrl);
-
-    // Test database connection
-    const result = await sql`SELECT 1+1 AS result;`;
-    return NextResponse.json({ message: 'Database connection successful', result }, { status: 200 });
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error('Error connecting to database:', error.message, error.stack);
-    } else {
-      console.error('Error connecting to database:', error);
-    }
-    return NextResponse.json({ error: 'Error connecting to database' }, { status: 500 });
   }
 }

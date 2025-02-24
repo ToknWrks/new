@@ -1,1 +1,1 @@
-{"version":1,"functions":{"/blog/[slug]":{},"/about":{},"/reset-password":{},"/contact":{},"/blog":{},"/newsletter":{},"/pricing":{},"/help/[slug]":{},"/":{}}}
+{"version":1,"functions":{"/reset-password":{},"/about":{},"/blog/[slug]":{},"/blog":{},"/contact":{},"/help/[slug]":{},"/newsletter":{},"/":{},"/pricing":{}}}
