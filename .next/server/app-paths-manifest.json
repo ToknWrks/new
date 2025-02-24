@@ -1,7 +1,5 @@
 {
-  "/api/claims/route": "app/api/claims/route.js",
-  "/(auth)/signin/page": "app/(auth)/signin/page.js",
-  "/(default)/claim-history/page": "app/(default)/claim-history/page.js",
+  "/(default)/claim-rewards/page": "app/(default)/claim-rewards/page.js",
   "/(default)/dashboard/page": "app/(default)/dashboard/page.js",
-  "/(default)/claim-rewards/page": "app/(default)/claim-rewards/page.js"
+  "/(auth)/signin/page": "app/(auth)/signin/page.js"
 }
