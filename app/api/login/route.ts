@@ -12,10 +12,13 @@ export async function POST(request: NextRequest) {
     }
     const sql = neon(databaseUrl);
 
+    console.log('Connecting to database...');
     // Find the user in the database
     const users = await sql`
       SELECT * FROM "User" WHERE email = ${email};
     `;
+
+    console.log('Users fetched:', users);
 
     if (users.length === 0) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
