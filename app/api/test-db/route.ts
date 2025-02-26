@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
     console.log('Connecting to database...');
     // Test database connection
-    const result = await sql`SELECT 1+1 AS result;`;
+    const result = await sql`SELECT * FROM "User" LIMIT 1;`;
     console.log('Database connection successful:', result);
     return NextResponse.json({ message: 'Database connection successful', result }, { status: 200 });
   } catch (error) {
