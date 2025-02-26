@@ -146,8 +146,8 @@ export const AKASH: ChainConfig = {
   export const SENTINEL: ChainConfig = {
     chainName : "Sentinel",
     chainId: "sentinelhub-2",
-    rpcEndpoint: "https://sentinel-rpc.publicnode.com",
-    restEndpoint: "https://sentinel-rest.publicnode.com",
+    rpcEndpoint: "https://rpc.cosmos.directory/sentinel",
+    restEndpoint: "https://rest.cosmos.directory/sentinel",
     icon: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/sentinel/images/dvpn.png',
     AddressForChain: "sentinelAddress",
     AssetId: "sentinel",

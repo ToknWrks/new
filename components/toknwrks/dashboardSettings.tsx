@@ -27,7 +27,7 @@ const DashboardSettings = () => {
   const [TaxRate, setTaxRate] = useState(savedSettings?.TaxRate || 25);
   const [SwapToken, setSwapToken] = useState<keyof typeof tokenDenomMap>(savedSettings?.SwapToken || "USDC");
   const [Slippage, setSlippage] = useState(savedSettings?.Slippage || 1); // Add state for Slippage
-  const [TipAmount, setTipAmount] = useState<number>(savedSettings?.TipAmount || 0); // Add state for Tip Amount
+  const [TipAmount, setTipAmount] = useState<number>(savedSettings?.TipAmount || 1); // Add state for Tip Amount
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   // Save settings to local storage whenever they change

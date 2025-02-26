@@ -8,9 +8,11 @@ const sql = neon(databaseUrl);
 
 export async function getUserByEmail(email: string) {
   try {
+    console.log('Fetching user by email:', email);
     const users = await sql`
       SELECT * FROM "User" WHERE email = ${email};
     `;
+    console.log('User fetched:', users);
     return users[0];
   } catch (error) {
     console.error('Error fetching user by email:', error);
@@ -20,11 +22,13 @@ export async function getUserByEmail(email: string) {
 
 export async function createUser(email: string, name: string, password: string) {
   try {
+    console.log('Creating user:', { email, name, password });
     const user = await sql`
       INSERT INTO "User" (email, name, password)
       VALUES (${email}, ${name}, ${password})
       RETURNING *;
     `;
+    console.log('User created:', user);
     return user[0];
   } catch (error) {
     console.error('Error creating user:', error);
