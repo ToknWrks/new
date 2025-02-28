@@ -15,7 +15,11 @@ export async function getUserByEmail(email: string) {
     console.log('User fetched:', users);
     return users[0];
   } catch (error) {
-    console.error('Error fetching user by email:', error);
+    if (error instanceof Error) {
+      console.error('Error fetching user by email:', error.message, error.stack);
+    } else {
+      console.error('Error fetching user by email:', error);
+    }
     throw error;
   }
 }
@@ -31,7 +35,11 @@ export async function createUser(email: string, name: string, password: string) 
     console.log('User created:', user);
     return user[0];
   } catch (error) {
-    console.error('Error creating user:', error);
+    if (error instanceof Error) {
+      console.error('Error creating user:', error.message, error.stack);
+    } else {
+      console.error('Error creating user:', error);
+    }
     throw error;
   }
 }
