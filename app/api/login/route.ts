@@ -9,6 +9,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     email = body.email;
     password = body.password;
+    console.log('Request body parsed:', { email, password });
   } catch (error) {
     console.error('Error parsing request body:', error);
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
