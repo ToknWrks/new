@@ -10,10 +10,10 @@ export async function GET(request: NextRequest) {
     const sql = neon(databaseUrl);
 
     console.log('Connecting to database...');
-    // Test database connection
-    const result = await sql`SELECT 1+1 AS result;`;
-    console.log('Database connection successful:', result);
-    return NextResponse.json({ message: 'Database connection successful', result }, { status: 200 });
+    // Test database connection by fetching data from the User table
+    const result = await sql`SELECT * FROM "User" LIMIT 1;`;
+    console.log('Database connection and query successful:', result);
+    return NextResponse.json({ message: 'Database connection and query successful', result }, { status: 200 });
   } catch (error) {
     if (error instanceof Error) {
       console.error('Error connecting to database:', error.message, error.stack);
