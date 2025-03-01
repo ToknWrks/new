@@ -3,7 +3,16 @@ import bcrypt from 'bcryptjs';
 import { getUserByEmail } from '@/user';
 
 export async function POST(request: NextRequest) {
-  const { email, password } = await request.json();
+  let email, password;
+
+  try {
+    const body = await request.json();
+    email = body.email;
+    password = body.password;
+  } catch (error) {
+    console.error('Error parsing request body:', error);
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+  }
 
   try {
     console.log('Connecting to database...');
@@ -34,6 +43,6 @@ export async function POST(request: NextRequest) {
     } else {
       console.error('Error logging in:', error);
     }
-    return NextResponse.json({ error: 'Error logging in' }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
