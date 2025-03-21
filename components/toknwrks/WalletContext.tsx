@@ -1,6 +1,10 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { DirectSecp256k1HdWallet, OfflineDirectSigner, DirectSignResponse, AccountData } from "@cosmjs/proto-signing";
+import { makeSignDoc as makeAminoSignDoc, StdSignDoc, AminoSignResponse } from "@cosmjs/amino";
+import { LedgerSigner } from "@cosmjs/ledger-amino";
+import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import { COSMOS_HUB, OSMOSIS, AKASH, REGEN, CELESTIA, OMNIFLIX, INJECTIVE } from "@/components/toknwrks/chains"; // Adjust the import path as needed
 
 export interface WalletContextType {
@@ -8,6 +12,7 @@ export interface WalletContextType {
   userId: string | null;
   address: string | null;
   cosmosAddress: string | null;
+  signer: OfflineDirectSigner | null;
 
   connectWallet: () => Promise<string | null>;
   disconnectWallet: () => void;
@@ -29,34 +34,145 @@ interface WalletProviderProps {
   children: ReactNode;
 }
 
+class LedgerSignerWrapper implements OfflineDirectSigner {
+  private ledgerSigner: LedgerSigner;
+
+  constructor(ledgerSigner: LedgerSigner) {
+    this.ledgerSigner = ledgerSigner;
+  }
+
+  async getAccounts(): Promise<readonly AccountData[]> {
+    return this.ledgerSigner.getAccounts();
+  }
+
+  async signDirect(signerAddress: string, signDoc: any): Promise<DirectSignResponse> {
+    // Convert SignDoc to Amino-compatible format
+    const aminoSignDoc: StdSignDoc = {
+      chain_id: signDoc.chainId,
+      account_number: signDoc.accountNumber.toString(),
+      sequence: signDoc.sequence.toString(),
+      fee: signDoc.fee,
+      msgs: signDoc.msgs.map((msg: any) => ({
+        type: msg.typeUrl.replace(/^\/+/, "").replace(/\./g, "/"), // Convert typeUrl to Amino type
+        value: msg.value,
+      })),
+      memo: signDoc.memo || "",
+    };
+
+    // Sign using Ledger
+    const { signed: aminoSigned, signature }: AminoSignResponse = await this.ledgerSigner.signAmino(signerAddress, aminoSignDoc);
+
+    return {
+      signed: {
+        bodyBytes: signDoc.bodyBytes, // Verify this matches the Amino-signed content
+        authInfoBytes: signDoc.authInfoBytes,
+        chainId: signDoc.chainId,
+        accountNumber: signDoc.accountNumber,
+      },
+      signature: {
+        pub_key: {
+          type: "tendermint/PubKeySecp256k1",
+          value: Buffer.from((await this.ledgerSigner.getAccounts())[0].pubkey).toString("base64"),
+        },
+        signature: signature.signature,
+      },
+    };
+  }
+}
+
 export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
   const [wallet, setWallet] = useState<any>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [cosmosAddress, setCosmosAddress] = useState<string | null>(null);
+  const [address, setAddress] = useState<string | null>(null);
+  const [signer, setSigner] = useState<OfflineDirectSigner | null>(null);
 
   useEffect(() => {
-    const storedWallet = localStorage.getItem("wallet");
-    if (storedWallet) {
-      setWallet(storedWallet);
-    }
-  }, []);
+    const checkWalletConnection = async () => {
+      const address = localStorage.getItem("cosmosAddress");
+      if (address && signer) {
+        setCosmosAddress(address);
+      }
+    };
+
+    checkWalletConnection();
+  }, [signer]);
 
   const connectWallet = async (): Promise<string | null> => {
-    // Implementation for connecting wallet
-    return null; // Placeholder return value
+    try {
+      if (!window.keplr) {
+        alert("Please install Keplr extension");
+        return null;
+      }
+
+      const chainId = "cosmoshub-4";
+      await window.keplr.enable(chainId);
+      const offlineSigner = window.getOfflineSigner(chainId);
+      const accounts = await offlineSigner.getAccounts();
+      const address = accounts[0].address;
+
+      const isLedger: boolean = await window.keplr.getKey(chainId).then((key: { isNanoLedger: boolean }) => key.isNanoLedger || false);
+      console.log("Using Ledger via Keplr:", isLedger);
+
+      if (isLedger) {
+        const ledgerTransport = await TransportWebUSB.create();
+        const ledgerSigner = new LedgerSigner(ledgerTransport, {
+          testModeAllowed: true,
+        });
+        setSigner(new LedgerSignerWrapper(ledgerSigner));
+      } else {
+        setSigner(offlineSigner);
+      }
+
+      localStorage.setItem("cosmosAddress", address);
+      setCosmosAddress(address);
+      return address;
+    } catch (error) {
+      console.error("Error connecting wallet:", error);
+      return null;
+    }
   };
 
-  const disconnectWallet = (): void => {
-    // Implementation for disconnecting wallet
+  const checkIfLedger = async (): Promise<boolean> => {
+    try {
+      const key = await window.keplr!.getKey("cosmoshub-4");
+      return key.isNanoLedger || false;
+    } catch (error) {
+      console.error("Error checking Ledger via Keplr:", error);
+      return false;
+    }
+  };
+
+  const disconnectWallet = () => {
+    setWallet(null);
+    setUserId(null);
+    setAddress(null);
+    setCosmosAddress(null);
+    setSigner(null);
+    localStorage.removeItem("cosmosAddress");
   };
 
   const getConnectedWalletAddress = async (): Promise<string | null> => {
-    // Implementation for getting connected wallet address
-    return null; // Placeholder return value
+    if (cosmosAddress) {
+      return cosmosAddress;
+    }
+    return null;
   };
 
   return (
-    <WalletContext.Provider value={{ wallet, userId, address: null, cosmosAddress,  connectWallet, disconnectWallet, setCosmosAddress, getConnectedWalletAddress }}>
+    <WalletContext.Provider
+      value={{
+        wallet,
+        userId,
+        address,
+        cosmosAddress,
+        signer,
+        connectWallet,
+        disconnectWallet,
+        setCosmosAddress,
+        getConnectedWalletAddress,
+      }}
+    >
       {children}
     </WalletContext.Provider>
   );

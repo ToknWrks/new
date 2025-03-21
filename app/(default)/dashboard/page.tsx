@@ -1,18 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Head from "next/head";
 import PageIllustration from "@/components/page-illustration";
 import FooterSeparator from "@/components/footer-separator";
 import { CHAINS, AddressesForChain } from "@/components/toknwrks/chains";
 import { useWallet } from "@/components/toknwrks/WalletContext";
-import { SigningStargateClient, MsgWithdrawDelegatorRewardEncodeObject, MsgSendEncodeObject } from "@cosmjs/stargate";
+import { SigningStargateClient, MsgWithdrawDelegatorRewardEncodeObject, MsgSendEncodeObject, AminoTypes } from "@cosmjs/stargate";
 import { MsgWithdrawDelegatorReward } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
 import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
 import { Registry, GeneratedType } from "@cosmjs/proto-signing";
 import { osmosis } from "osmojs"; // Correct import
 import { ibc } from 'osmojs';
 import { sendIBCTransfer } from "@/components/toknwrks/sendIBCTransfer";
-import  DashboardTotalChart from "@/components/toknwrks/dashboardTotalChart";
+import DashboardTotalChart from "@/components/toknwrks/dashboardTotalChart";
+import WalletConnection from "@/components/toknwrks/WalletConnection"; // Import WalletConnection
 
 const priceCache: { [key: string]: number } = {};
 const rateLimit = 10; // Number of requests per minute
@@ -64,7 +66,7 @@ const convertToSmallestUnit = (amount: number, decimals: number) => {
 // UI 
 
 export default function ClaimRewardsPage() {
-  const wallet = useWallet();
+  const { cosmosAddress, signer, connectWallet } = useWallet();
   const [unclaimedRewards, setUnclaimedRewards] = useState<{ [key: string]: number }>({});
   const [assetPrices, setAssetPrices] = useState<{ [key: string]: number }>({});
   const [claimStatus, setClaimStatus] = useState("");
@@ -79,6 +81,51 @@ export default function ClaimRewardsPage() {
   const [stakedTokens, setStakedTokens] = useState<{ [key: string]: number }>({});
   const [availableTokens, setAvailableTokens] = useState<{ [key: string]: number }>({});
 
+  const handleClaim = async (chainName: string, validatorAddress: string) => {
+    if (!signer || !cosmosAddress) {
+      alert("Please connect your wallet first.");
+      return;
+    }
+
+    try {
+      const aminoTypes = new AminoTypes({
+        "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward": {
+          aminoType: "cosmos-sdk/MsgWithdrawDelegatorReward",
+          toAmino: ({ delegatorAddress, validatorAddress }) => ({
+            delegator_address: delegatorAddress,
+            validator_address: validatorAddress,
+          }),
+          fromAmino: ({ delegator_address, validator_address }) => ({
+            delegatorAddress: delegator_address,
+            validatorAddress: validator_address,
+          }),
+        },
+      });
+      const client = await SigningStargateClient.connectWithSigner("https://rpc.cosmos.network", signer, { aminoTypes });
+      const msg: MsgWithdrawDelegatorRewardEncodeObject = {
+        typeUrl: "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
+        value: MsgWithdrawDelegatorReward.fromPartial({
+          delegatorAddress: cosmosAddress,
+          validatorAddress: validatorAddress,
+        }),
+      };
+
+      const fee = {
+        amount: [{ denom: "uatom", amount: "5000" }],
+        gas: "200000",
+      };
+
+      const result = await client.signAndBroadcast(cosmosAddress, [msg], fee);
+      if (result.code !== undefined && result.code !== 0) {
+        throw new Error(`Error when broadcasting tx ${result.transactionHash} at height ${result.height}. Code: ${result.code}; Raw log: ${result.rawLog}`);
+      }
+
+      alert("Claim successful!");
+    } catch (error) {
+      console.error("Error claiming rewards:", error);
+      alert("Error claiming rewards. Check the console for more details.");
+    }
+  };
 
   useEffect(() => {
     const savedChains = localStorage.getItem("savedChains") || "[]";
@@ -380,6 +427,10 @@ export default function ClaimRewardsPage() {
 
   return (
     <>
+      <Head>
+        <title>Proof of Stake Dashboard</title>
+        <meta name="description" content="This is a custom description for my page." />
+      </Head>
       <PageIllustration multiple />
       <section>
          {claimStatus && (

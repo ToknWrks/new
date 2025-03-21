@@ -39,7 +39,7 @@ export const COSMOS_HUB: ChainConfig = {
   sourceChannel: "channel-141", //  Source channel for Cosmos Hub
   destinationChannel: "channel-0", // 
   destinationPort: "transfer", //  
-  tipAddress: "cosmos19pvdg6ut7n5kqzmsrxysln2cfedenw85t9canv",
+  tipAddress: "cosmos1vj0h76hp378ufnypjv2234m23q2g7pj98r7dgq",
 };
 
 export const OSMOSIS: ChainConfig = {
@@ -57,7 +57,7 @@ export const OSMOSIS: ChainConfig = {
   gasMultiplier: 1.2,
   unbondingDays: 14,
   swapPoolId: 1464,
-  tipAddress: "osmo19pvdg6ut7n5kqzmsrxysln2cfedenw85r7td97",
+  tipAddress: "osmo1vj0h76hp378ufnypjv2234m23q2g7pj90cda7j",
  
 };
 
@@ -78,7 +78,7 @@ export const AKASH: ChainConfig = {
     swapPoolId: 1301,
     sourceChannel: "channel-9", //  Source channel for Cosmos Hub
     destinationChannel: "channel-1",
-    tipAddress: "akash19pvdg6ut7n5kqzmsrxysln2cfedenw85x7462k",
+    tipAddress: "akash1vj0h76hp378ufnypjv2234m23q2g7pj92cn236",
   };
 
   export const REGEN: ChainConfig = {
@@ -99,7 +99,7 @@ export const AKASH: ChainConfig = {
     intermediateSwapPoolId: 1483,
     sourceChannel: "channel-1",
     destinationChannel: "channel-8",
-    tipAddress: "regen19pvdg6ut7n5kqzmsrxysln2cfedenw8558np9g",
+    tipAddress: "regen1vj0h76hp378ufnypjv2234m23q2g7pj9cp437y",
   };
 
   export const OMNIFLIX: ChainConfig = {
@@ -119,7 +119,7 @@ export const AKASH: ChainConfig = {
     swapPoolId: 1895,
     sourceChannel: "channel-1",
     destinationChannel: "channel-199",
-    tipAddress: "omniflix19pvdg6ut7n5kqzmsrxysln2cfedenw85kmfyyj",
+    tipAddress: "omniflix1vj0h76hp378ufnypjv2234m23q2g7pj96a05l7",
   };
 
 
@@ -140,7 +140,7 @@ export const AKASH: ChainConfig = {
     swapPoolId: 1097,
     sourceChannel: "channel-0", 
     destinationChannel: "channel-42",
-    tipAddress: "juno19pvdg6ut7n5kqzmsrxysln2cfedenw85ahmx5s",
+    tipAddress: "juno1vj0h76hp378ufnypjv2234m23q2g7pj933ak0u",
   };
 
   export const SENTINEL: ChainConfig = {
@@ -161,15 +161,15 @@ export const AKASH: ChainConfig = {
     sourceChannel: "channel-2", 
     destinationChannel: "channel-0", 
     destinationPort: "transfer", 
-    tipAddress: "sent19pvdg6ut7n5kqzmsrxysln2cfedenw85s7wyhr",
+    tipAddress: "sent1vj0h76hp378ufnypjv2234m23q2g7pj9ucg5v0",
     
   };
 
   export const STRIDE: ChainConfig = {
     chainName: "Stride",
     chainId: "stride-1",
-    rpcEndpoint: "https://stride-rpc.publicnode.com",
-    restEndpoint: "https://stride-rest.publicnode.com",
+    rpcEndpoint: "https://rpc.cosmos.directory/stride",
+    restEndpoint: "https://rest.cosmos.directory/stride",
     icon: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/stride/images/strd.png',
     AddressForChain: "strideAddress",
     AssetId: "stride",
@@ -183,7 +183,7 @@ export const AKASH: ChainConfig = {
     sourceChannel: "channel-5", 
     destinationChannel: "channel-326", 
     destinationPort: "transfer", 
-    tipAddress: "stride19pvdg6ut7n5kqzmsrxysln2cfedenw85gwcp8q",
+    tipAddress: "stride1vj0h76hp378ufnypjv2234m23q2g7pj9yg73uv",
   };
 
 
@@ -202,7 +202,7 @@ export const AKASH: ChainConfig = {
     gasMultiplier: 1.3,
     unbondingDays: 14,
     swapPoolId: 1244,
-    tipAddress: "core1cwd5cnn6cqpuuxlr95klsperdqplaz5y9x3a3y",
+    tipAddress: "core12lkpgzejkm4var5zl5f65lhg8e50h9ndmj7mr3",
   };
 
   export const INJECTIVE: ChainConfig = {
@@ -220,7 +220,7 @@ export const AKASH: ChainConfig = {
     gasMultiplier: 1.2,
     unbondingDays: 21,
     swapPoolId: 1319,
-    tipAddress: "inj1sak7ul0tqn599ktte8q9jqxmphrc6rcwc4sedx",
+    tipAddress: "inj1ssau0dhrmcaj4rj845xh4l8v0e03rr4x4asr9h",
 
   };
 
@@ -242,7 +242,7 @@ export const AKASH: ChainConfig = {
     sourceChannel: "channel-2", 
     destinationChannel: "channel-6994", 
     destinationPort: "transfer", 
-    tipAddress: "celestia19pvdg6ut7n5kqzmsrxysln2cfedenw8560fdfp",
+    tipAddress: "celestia1vj0h76hp378ufnypjv2234m23q2g7pj9kf0ajd",
   };
 
   export const STARGAZE: ChainConfig = {
@@ -263,15 +263,15 @@ export const AKASH: ChainConfig = {
     sourceChannel: "channel-75", 
     destinationChannel: "channel-0", 
     destinationPort: "transfer", 
-    tipAddress: "stars19pvdg6ut7n5kqzmsrxysln2cfedenw85le0qca",
+    tipAddress: "stars1vj0h76hp378ufnypjv2234m23q2g7pj9nlfsr3",
   };
 
   export const ATONE: ChainConfig = {
     chainName: "Atone",
       chainId: "atomone-1",
-      rpcEndpoint: "https://atone-rpc.publicnode.com",
-      restEndpoint: "https://atone-rest.publicnode.com",
-      icon: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/akash/images/atomone.png',
+      rpcEndpoint: "https://rpc.cosmos.directory/atomone",
+      restEndpoint: "https://rest.cosmos.directory/atomone",
+      icon: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/atomone/images/atomone.png',
       AddressForChain: "atoneAddress",
       AssetId: "atomeone",
       Denom: "uatone",
@@ -280,18 +280,18 @@ export const AKASH: ChainConfig = {
       gasPrice: '0.025uatone',
       gasMultiplier: 1.3,
       unbondingDays: 21,
-      swapPoolId: 1301,
+      swapPoolId: 2741,
       sourceChannel: "channel-9", //  Source channel for Cosmos Hub
       destinationChannel: "channel-1",
-      tipAddress: "akash19pvdg6ut7n5kqzmsrxysln2cfedenw85x7462k",
+      tipAddress: "atone1vj0h76hp378ufnypjv2234m23q2g7pj9frz27c",
     };
     
-  export const CHAINS = [COSMOS_HUB, OSMOSIS, AKASH, REGEN, CELESTIA, INJECTIVE, OMNIFLIX, SENTINEL, JUNO, STARGAZE, COREUM];
+  export const CHAINS = [COSMOS_HUB, OSMOSIS, AKASH, REGEN, CELESTIA, INJECTIVE, OMNIFLIX, SENTINEL, JUNO, STARGAZE, COREUM, ATONE];
  
   // Function to get address for a chain
 export const AddressesForChain = (chainName: string, wallet: any) => {
   const chain = CHAINS.find(chain => chain.chainName === chainName);
-  return chain ? wallet[chain.AddressForChain] : null;
+  return chain ? wallet[chain.AddressForChain] : null
 };
 
 
