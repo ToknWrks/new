@@ -51,7 +51,9 @@ export default function Header() {
           {/* Desktop navigation */}
           <nav className="hidden md:flex md:grow">
             {/* Desktop menu links */}
+           
             <ul className="flex grow flex-wrap items-center justify-center gap-4 text-sm lg:gap-8">
+              {/* Claim link 
               <li>
                 <Link
                   href="/claim-rewards"
@@ -60,6 +62,7 @@ export default function Header() {
                   Claim Rewards
                 </Link>
               </li>
+              */}
               <li>
                 <Link
                   href="/dashboard"
