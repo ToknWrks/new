@@ -43,7 +43,15 @@ const fetchAssetPrice = async (assetId: string) => {
 };
 
 const ClaimsPage = () => {
-  const [claims, setClaims] = useState([]);
+  interface Claim {
+    token_symbol: string;
+    chain_name: string;
+    tokens_claimed: string;
+    token_price: string;
+    date_claimed: string;
+  }
+
+  const [claims, setClaims] = useState<Claim[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [openAccordion, setOpenAccordion] = useState<string | null>(null);
@@ -62,6 +70,32 @@ const ClaimsPage = () => {
       fetchCurrentPrices(); // Fetch current prices
     }
   }, []);
+
+  const fetchCurrentPrices = async () => {
+    const prices: { [symbol: string]: number } = {};
+    
+    // Get unique token symbols
+    const symbols = Array.from(new Set(claims.map(claim => claim.token_symbol)));
+    
+    // Fetch current prices for all symbols
+    for (const symbol of symbols) {
+      try {
+        const chain = CHAINS.find(c => c.Symbol === symbol);
+        if (chain) {
+          const price = await fetchAssetPrice(chain.AssetId);
+          prices[symbol] = price;
+        }
+      } catch (error) {
+        console.error(`Error fetching price for ${symbol}:`, error);
+      }
+    }
+    
+    setCurrentPrices(prices);
+  };
+
+  useEffect(() => {
+    fetchCurrentPrices();
+  }, [claims]); // Re-fetch when claims change
 
   const fetchClaims = async (userId: string) => {
     try {
@@ -83,23 +117,6 @@ const ClaimsPage = () => {
     if (savedSettings) {
       const settings = JSON.parse(savedSettings);
       setTaxRate(settings.TaxRate || 0);
-    }
-  };
-
-  const fetchCurrentPrices = async () => {
-    try {
-      console.log("Fetching current prices"); // Debugging log
-      const prices = await Promise.all(
-        CHAINS.map(async (chain) => {
-          const price = await fetchAssetPrice(chain.AssetId);
-          return { [chain.Symbol]: price };
-        })
-      );
-      const pricesObject = prices.reduce((acc, price) => ({ ...acc, ...price }), {});
-      console.log("Fetched current prices:", pricesObject); // Debugging log
-      setCurrentPrices(pricesObject);
-    } catch (err) {
-      console.error("Failed to fetch current prices:", err);
     }
   };
 
@@ -136,6 +153,46 @@ const ClaimsPage = () => {
     return (currentValue - costBasis).toFixed(2);
   };
 
+  // Update or add this function to calculate column totals with custom value accessor
+  const calculateColumnTotal = (data: any[], field: string, accessor?: (rowData: any) => number | string) => {
+    let total = 0;
+    if (data && data.length > 0) {
+      data.forEach(item => {
+        if (accessor) {
+          // Use the accessor function if provided
+          const value = accessor(item);
+          total += typeof value === 'string' ? parseFloat(value) : value;
+        } else if (item[field] !== undefined && !isNaN(parseFloat(item[field]))) {
+          // Otherwise use direct field value
+          total += parseFloat(item[field]);
+        }
+      });
+    }
+    return total.toFixed(2);
+  };
+
+  const createFooterTemplate = (data: any[]) => {
+    return {
+      amount: (
+        <div className="text-right font-bold">
+          Total: {calculateColumnTotal(data, 'amount')}
+        </div>
+      ),
+      value: (
+        <div className="text-right font-bold">
+          Total: ${calculateColumnTotal(data, 'value')}
+        </div>
+      ),
+      // Add more columns as needed based on your actual table structure
+    };
+  };
+
+  // First, make sure we have a function to get current asset price
+  const getCurrentAssetPrice = (assetSymbol: string) => {
+    // Return the current price from your state, or fall back to stored price
+    return currentPrices[assetSymbol] || 0;
+  };
+
   if (!isLoggedIn) {
     return (
       <div className="container mx-auto px-4">
@@ -159,13 +216,28 @@ const ClaimsPage = () => {
           {openAccordion === chainName && (
             <div className="accordion-body bg-gray-200 p-4 rounded-b-lg border border-gray-600">
               <DataTable value={groupedClaims[chainName]} stripedRows>
-                <Column field="tokens_claimed" header="Claimed" body={(rowData) => parseFloat(rowData.tokens_claimed).toFixed(2)} className="text-center" />
+                <Column field="tokens_claimed" header="Claimed" body={(rowData) => parseFloat(rowData.tokens_claimed).toFixed(2)} className="text-center" footer={`Total: ${calculateColumnTotal(groupedClaims[chainName], 'tokens_claimed')}`} />
                 <Column field="token_price" header="Price" body={(rowData) => `$${parseFloat(rowData.token_price).toFixed(2)}`} className="text-center" />
                 <Column field="date_claimed" header="Date" body={(rowData) => new Date(rowData.date_claimed).toLocaleDateString()} className="text-center" />
-                <Column field="tax" header="Tax" body={(rowData) => `$${calculateTaxObligation(parseFloat(rowData.tokens_claimed), parseFloat(rowData.token_price))}`} className="text-center" />
-                <Column field="basis" header="Basis" body={(rowData) => `$${calculateCostBasis(parseFloat(rowData.tokens_claimed), parseFloat(rowData.token_price))}`} className="text-center" />
-                <Column field="value" header="Value" body={(rowData) => `$${calculateCurrentValue(parseFloat(rowData.tokens_claimed), currentPrices[rowData.token_symbol] || parseFloat(rowData.token_price))}`} className="text-center" />
-                <Column field="profit_loss" header="P&L" body={(rowData) => `$${calculateProfitLoss(parseFloat(calculateCostBasis(parseFloat(rowData.tokens_claimed), parseFloat(rowData.token_price))), parseFloat(calculateCurrentValue(parseFloat(rowData.tokens_claimed), currentPrices[rowData.token_symbol] || parseFloat(rowData.token_price))))}`} className="text-center" />
+                <Column field="tax" header="Tax" body={(rowData) => `$${calculateTaxObligation(parseFloat(rowData.tokens_claimed), parseFloat(rowData.token_price))}`} className="text-center" footer={`Total: $${calculateColumnTotal(groupedClaims[chainName], 'tax', (rowData) => calculateTaxObligation(parseFloat(rowData.tokens_claimed), parseFloat(rowData.token_price)))}`} />
+                <Column field="basis" header="Basis" body={(rowData) => `$${calculateCostBasis(parseFloat(rowData.tokens_claimed), parseFloat(rowData.token_price))}`} className="text-center" footer={`Total: $${calculateColumnTotal(groupedClaims[chainName], 'basis', (rowData) => calculateCostBasis(parseFloat(rowData.tokens_claimed), parseFloat(rowData.token_price)))}`} />
+                <Column 
+                  field="value" 
+                  header="Value" 
+                  body={(rowData) => {
+                    const currentPrice = currentPrices[rowData.token_symbol] || parseFloat(rowData.token_price);
+                    const claimedTokens = parseFloat(rowData.tokens_claimed);
+                    const currentValue = (claimedTokens * currentPrice).toFixed(2);
+                    return `$${currentValue}`;
+                  }} 
+                  className="text-center" 
+                  footer={`Total: $${calculateColumnTotal(groupedClaims[chainName], 'value', (rowData) => {
+                    const currentPrice = currentPrices[rowData.token_symbol] || parseFloat(rowData.token_price);
+                    const claimedTokens = parseFloat(rowData.tokens_claimed);
+                    return claimedTokens * currentPrice;
+                  })}`} 
+                />
+                <Column field="profit_loss" header="P&L" body={(rowData) => `$${calculateProfitLoss(parseFloat(calculateCostBasis(parseFloat(rowData.tokens_claimed), parseFloat(rowData.token_price))), parseFloat(calculateCurrentValue(parseFloat(rowData.tokens_claimed), currentPrices[rowData.token_symbol] || parseFloat(rowData.token_price))))}`} className="text-center" footer={`Total: $${calculateColumnTotal(groupedClaims[chainName], 'profit_loss', (rowData) => calculateProfitLoss(parseFloat(calculateCostBasis(parseFloat(rowData.tokens_claimed), parseFloat(rowData.token_price))), parseFloat(calculateCurrentValue(parseFloat(rowData.tokens_claimed), currentPrices[rowData.token_symbol] || parseFloat(rowData.token_price)))))}`} />
               </DataTable>
             </div>
           )}
