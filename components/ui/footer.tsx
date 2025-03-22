@@ -20,99 +20,23 @@ export default function Footer() {
           />
         </div>
         <div className="grid grid-cols-2 justify-between gap-12 py-8 sm:grid-rows-[auto_auto] md:grid-cols-4 md:grid-rows-[auto_auto] md:py-12 lg:grid-cols-[repeat(4,minmax(0,140px))_1fr] lg:grid-rows-1 xl:gap-20">
-          {/* 1st block */}
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium text-gray-200">Product</h3>
-            <ul className="space-y-2 text-sm">
+          {/* Comment out blocks 1-4 
+          <div className="col-span-2 md:col-span-4 lg:col-span-3">
+            <div className="mb-3 font-medium uppercase tracking-[1px] text-gray-400">
+              About us
+            </div>
+            <ul className="mb-8 flex flex-wrap items-center gap-6 text-sm">
               <li>
                 <a
-                  className="text-indigo-200/65 transition hover:text-indigo-500"
+                  className="transition hover:text-white"
                   href="#0"
                 >
-                  Features
+                  Products
                 </a>
               </li>
               <li>
                 <a
-                  className="text-indigo-200/65 transition hover:text-indigo-500"
-                  href="#0"
-                >
-                  Integrations
-                </a>
-              </li>
-              <li>
-                <a
-                  className="text-indigo-200/65 transition hover:text-indigo-500"
-                  href="#0"
-                >
-                  Pricing &amp; Plans
-                </a>
-              </li>
-              <li>
-                <a
-                  className="text-indigo-200/65 transition hover:text-indigo-500"
-                  href="#0"
-                >
-                  Changelog
-                </a>
-              </li>
-              <li>
-                <a
-                  className="text-indigo-200/65 transition hover:text-indigo-500"
-                  href="#0"
-                >
-                  Our method
-                </a>
-              </li>
-              <li>
-                <a
-                  className="text-indigo-200/65 transition hover:text-indigo-500"
-                  href="#0"
-                >
-                  User policy
-                </a>
-              </li>
-            </ul>
-          </div>
-          {/* 2nd block */}
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium text-gray-200">Company</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a
-                  className="text-indigo-200/65 transition hover:text-indigo-500"
-                  href="#0"
-                >
-                  About us
-                </a>
-              </li>
-              
-              <li>
-                <a
-                  className="text-indigo-200/65 transition hover:text-indigo-500"
-                  href="#0"
-                >
-                  Blog
-                </a>
-              </li>
-             
-              <li>
-                <a
-                  className="text-indigo-200/65 transition hover:text-indigo-500"
-                  href="#0"
-                >
-                  Financial statements
-                </a>
-              </li>
-            </ul>
-          </div>
-          {/* 3rd block */}
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium text-gray-200">Resources</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a
-                  className="text-indigo-200/65 transition hover:text-indigo-500"
+                  className="transition hover:text-white"
                   href="#0"
                 >
                   Community
@@ -120,70 +44,32 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  className="text-indigo-200/65 transition hover:text-indigo-500"
+                  className="transition hover:text-white"
                   href="#0"
                 >
-                  Terms of service
+                  Terms
                 </a>
               </li>
               <li>
                 <a
-                  className="text-indigo-200/65 transition hover:text-indigo-500"
+                  className="transition hover:text-white"
                   href="#0"
                 >
-                  Report a vulnerability
+                  Privacy
+                </a>
+              </li>
+              <li>
+                <a
+                  className="transition hover:text-white"
+                  href="#0"
+                >
+                  Contact
                 </a>
               </li>
             </ul>
           </div>
-          {/* 4th block */}
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium text-gray-200">
-              Content Library
-            </h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a
-                  className="text-indigo-200/65 transition hover:text-indigo-500"
-                  href="#0"
-                >
-                  Templates
-                </a>
-              </li>
-              <li>
-                <a
-                  className="text-indigo-200/65 transition hover:text-indigo-500"
-                  href="#0"
-                >
-                  Tutorials
-                </a>
-              </li>
-              <li>
-                <a
-                  className="text-indigo-200/65 transition hover:text-indigo-500"
-                  href="#0"
-                >
-                  Knowledge base
-                </a>
-              </li>
-              <li>
-                <a
-                  className="text-indigo-200/65 transition hover:text-indigo-500"
-                  href="#0"
-                >
-                  Learn
-                </a>
-              </li>
-              <li>
-                <a
-                  className="text-indigo-200/65 transition hover:text-indigo-500"
-                  href="#0"
-                >
-                  Cookie manager
-                </a>
-              </li>
-            </ul>
-          </div>
+          */}
+
           {/* 5th block */}
           <div className="col-span-2 md:col-span-4 lg:col-span-1 lg:text-right">
             <div className="mb-3">
@@ -191,20 +77,20 @@ export default function Footer() {
             </div>
             <div className="text-sm">
               <p className="mb-3 text-indigo-200/65">
-                © illuminati.co
+                © toknwrks
                 <span className="text-gray-700"> · </span>
                 <a
                   className="text-indigo-200/65 transition hover:text-indigo-500"
                   href="#0"
                 >
-                  Terms
+                  
                 </a>
               </p>
               <ul className="inline-flex gap-1">
                 <li>
                   <a
                     className="flex items-center justify-center text-indigo-500 transition hover:text-indigo-400"
-                    href="#0"
+                    href="https://x.com/toknwrks"
                     aria-label="Twitter"
                   >
                     <svg
