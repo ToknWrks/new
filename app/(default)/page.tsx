@@ -16,11 +16,7 @@ export default function Home() {
     <>
       <PageIllustration />
       <Hero />
-      <Workflows />
-      <Features />
-      <SplitCarousel />
-      <Pricing />
-      <Cta />
+   
     </>
   );
 }

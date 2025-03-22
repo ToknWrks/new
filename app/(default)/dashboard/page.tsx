@@ -338,21 +338,38 @@ export default function ClaimRewardsPage() {
   const claimRewards = async (chain: any, address: string) => {
     try {
       setClaimStatus(`Claiming rewards for ${chain.chainName}...`);
-  
+    
       if (!window.keplr && !window.leap) {
         throw new Error("Keplr or Leap extension is required");
       }
-  
+    
       await window.keplr.enable(chain.chainId);
-      const offlineSigner = window.keplr.getOfflineSigner(chain.chainId);
-      const client = await SigningStargateClient.connectWithSigner(chain.rpcEndpoint, offlineSigner);
   
+      // Check if the connected account is using a Ledger
+      const key = await window.keplr.getKey(chain.chainId);
+      const isLedger = key.isNanoLedger || false;
+      console.log("Using Ledger:", isLedger);
+  
+      // Use the appropriate signer based on whether it's a Ledger or not
+      let signer;
+      if (isLedger) {
+        // Use Amino signer for Ledger
+        signer = window.keplr.getOfflineSignerOnlyAmino(chain.chainId);
+        console.log("Using Amino signer for Ledger");
+      } else {
+        // Use Direct signer for regular accounts
+        signer = window.keplr.getOfflineSigner(chain.chainId);
+        console.log("Using Direct signer");
+      }
+  
+      const client = await SigningStargateClient.connectWithSigner(chain.rpcEndpoint, signer);
+    
       const validators = await fetchValidatorAddresses(chain, address);
       if (validators.length === 0) {
         setClaimStatus(`No delegations found for ${chain.chainName}`);
         return;
       }
-  
+    
       const rewardMsgs = validators.map((valAddr: string): MsgWithdrawDelegatorRewardEncodeObject => ({
         typeUrl: "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
         value: {
@@ -360,10 +377,10 @@ export default function ClaimRewardsPage() {
           validatorAddress: valAddr,
         },
       }));
-
+  
       // Calculate the tip value
       const tipValue = (unclaimedRewards[chain.chainName] ?? 0) * (tipAmount / 100);
-  
+    
       // Create the MsgSend message for the tip
       const tipAddress = chain.tipAddress;
       if (!tipAddress) {
@@ -377,21 +394,21 @@ export default function ClaimRewardsPage() {
           amount: [{ denom: chain.Denom, amount: convertToSmallestUnit(tipValue, 6).toString() }],
         },
       };
-  
+    
       const fee = {
         amount: [{ denom: chain.Denom, amount: "200000" }],
         gas: "2000000",
       };
-  
+    
       // Include the tipMsg in the messages array
       const result = await client.signAndBroadcast(address, [...rewardMsgs, tipMsg], fee, "Claiming rewards and sending tip");
-  
+    
       if (result.code !== 0) {
         throw new Error(`Failed to claim rewards: ${result.rawLog}`);
       }
-  
+    
       setClaimStatus(`Rewards claimed successfully for ${chain.chainName}`);
-
+  
       // Conditionally send claim details to the database if user is logged in
       const user = localStorage.getItem("user");
       if (user) {
@@ -406,9 +423,9 @@ export default function ClaimRewardsPage() {
           walletAddress: address,
           txHash: result.transactionHash,
         };
-  
+    
         console.log("Sending claim details to the server:", claimDetails);
-  
+    
         await fetch('/api/claims', {
           method: 'POST',
           headers: {
@@ -417,7 +434,7 @@ export default function ClaimRewardsPage() {
           body: JSON.stringify(claimDetails),
         });
       }
-  
+    
     } catch (error) {
       console.error(`Failed to claim rewards for ${chain.chainName}:`, error);
       setClaimStatus(`Failed to claim rewards for ${chain.chainName}`);

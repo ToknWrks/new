@@ -1,11 +1,11 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { DirectSecp256k1HdWallet, OfflineDirectSigner, DirectSignResponse, AccountData } from "@cosmjs/proto-signing";
-import { makeSignDoc as makeAminoSignDoc, StdSignDoc, AminoSignResponse } from "@cosmjs/amino";
+import { OfflineDirectSigner, AccountData } from "@cosmjs/proto-signing";
+import { StdSignDoc, AminoSignResponse } from "@cosmjs/amino";
+import { DirectSignResponse } from "@cosmjs/proto-signing";
 import { LedgerSigner } from "@cosmjs/ledger-amino";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-import { COSMOS_HUB, OSMOSIS, AKASH, REGEN, CELESTIA, OMNIFLIX, INJECTIVE } from "@/components/toknwrks/chains"; // Adjust the import path as needed
 
 export interface WalletContextType {
   wallet: any;
@@ -107,22 +107,18 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
 
       const chainId = "cosmoshub-4";
       await window.keplr.enable(chainId);
-      const offlineSigner = window.getOfflineSigner(chainId);
+      const offlineSigner = window.keplr.getOfflineSigner(chainId);
       const accounts = await offlineSigner.getAccounts();
       const address = accounts[0].address;
 
-      const isLedger: boolean = await window.keplr.getKey(chainId).then((key: { isNanoLedger: boolean }) => key.isNanoLedger || false);
+      // Get the key to check if it's a Ledger
+      const key = await window.keplr.getKey(chainId);
+      const isLedger = key.isNanoLedger || false;
       console.log("Using Ledger via Keplr:", isLedger);
 
-      if (isLedger) {
-        const ledgerTransport = await TransportWebUSB.create();
-        const ledgerSigner = new LedgerSigner(ledgerTransport, {
-          testModeAllowed: true,
-        });
-        setSigner(new LedgerSignerWrapper(ledgerSigner));
-      } else {
-        setSigner(offlineSigner);
-      }
+      // Use Keplr's signer directly regardless of whether it's Ledger or not
+      // Keplr will handle the Ledger connection internally
+      setSigner(offlineSigner);
 
       localStorage.setItem("cosmosAddress", address);
       setCosmosAddress(address);
@@ -130,16 +126,6 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
     } catch (error) {
       console.error("Error connecting wallet:", error);
       return null;
-    }
-  };
-
-  const checkIfLedger = async (): Promise<boolean> => {
-    try {
-      const key = await window.keplr!.getKey("cosmoshub-4");
-      return key.isNanoLedger || false;
-    } catch (error) {
-      console.error("Error checking Ledger via Keplr:", error);
-      return false;
     }
   };
 
