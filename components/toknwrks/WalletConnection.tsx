@@ -32,11 +32,33 @@ const WalletConnection: React.FC<WalletConnectionProps> = ({ onConnect }) => {
   return (
     <div>
       {cosmosAddress ? (
-        <div>
-          <button onClick={handleDisconnect}>Disconnect {truncateAddress(cosmosAddress)}</button>
+        <div className="inline-flex items-center px-4 py-2 border border-gray-700 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors duration-200">
+          <button
+            onClick={handleDisconnect}
+            className="flex items-center space-x-2 text-gray-300 hover:text-indigo-400"
+          >
+          <img 
+          src="/keplr-dark.png" 
+         alt="Disconnect Keplr" 
+         className="h-[25px] w-auto"
+          />
+            <span>Disconnect {truncateAddress(cosmosAddress)}</span>
+          </button>
         </div>
       ) : (
-        <button onClick={handleConnect}>Connect Keplr</button>
+        <div className="inline-flex items-center px-4 py-2 border border-gray-700 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors duration-200">
+          <button
+            onClick={handleConnect}
+            className="flex items-center space-x-2 text-gray-300 hover:text-indigo-400"
+          >
+            <img 
+              src="/keplr.png" 
+              alt="Keplr Logo" 
+              className="h-[25px] w-auto"
+            />
+            <span>Connect Keplr</span>
+          </button>
+        </div>
       )}
     </div>
   );
