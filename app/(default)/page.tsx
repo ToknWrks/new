@@ -15,8 +15,7 @@ export default function Home() {
   return (
     <>
       <PageIllustration />
-      <Hero />
-   
+        <Hero />
     </>
   );
 }
