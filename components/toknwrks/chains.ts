@@ -285,8 +285,28 @@ export const AKASH: ChainConfig = {
       destinationChannel: "channel-1",
       tipAddress: "atone1vj0h76hp378ufnypjv2234m23q2g7pj9frz27c",
     };
+
+    export const SECRET: ChainConfig = {
+      chainName: "Secret",
+        chainId: "secret-4",
+        rpcEndpoint: "https://rpc.cosmos.directory/secretnetwork",
+        restEndpoint: "https://rest.cosmos.directory/secretnetwork",
+        icon: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/secretnetwork/images/scrt.png',
+        AddressForChain: "secretAddress",
+        AssetId: "secret",
+        Denom: "uscrt",
+        decimals: 6,
+        Symbol: "SCRT",
+        gasPrice: '0.025scrt  ',
+        gasMultiplier: 1.3,
+        unbondingDays: 21,
+        swapPoolId: 1,
+        sourceChannel: "channel-9", //  Source channel for Cosmos Hub
+        destinationChannel: "channel-1",
+        tipAddress: "secret1ua5v32d6huhuz2ccuxdz9w9mz2g5rw7tlva5vu",
+      };
     
-  export const CHAINS = [COSMOS_HUB, OSMOSIS, AKASH, REGEN, CELESTIA, INJECTIVE, OMNIFLIX, SENTINEL, JUNO, STARGAZE, COREUM, ATONE];
+  export const CHAINS = [COSMOS_HUB, OSMOSIS, AKASH, REGEN, CELESTIA, INJECTIVE, OMNIFLIX, SENTINEL, JUNO, STARGAZE, COREUM, ATONE, SECRET];
  
   // Function to get address for a chain
 export const AddressesForChain = (chainName: string, wallet: any) => {
